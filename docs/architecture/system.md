@@ -24,7 +24,7 @@ The plugin uses three Engineer/Architect patterns. Picking the right one for a n
 ### Heavy Engineer (deprecated)
 Pre-flight Q&A in Opus main + Sonnet subagent dispatch for the body + YAML return contract + allowlist enforcement.
 
-This pattern existed through v2.3.x. **As of v3.1.0, no skill in the plugin uses it.** The shared references in `skills/_shared/references/` (subagent preamble, YAML return contract, present-summary rendering, re-dispatch flow) still document the contract for completeness, but they are not currently consumed by any active skill. If a future skill needs this pattern (e.g. genuinely multi-stage subagent pipelines), the references are ready.
+This pattern existed through v2.3.x. **As of v3.1.0, no skill in the plugin uses it.** v4.5.0 deleted the contract artifacts (`subagent-preamble.md`, `yaml-return.md`, `present-summary.md`, `scripts/parse-yaml-return.sh`) after two major versions with no consumer — git history preserves them if the pattern ever returns.
 
 ## Skill Layout
 
@@ -47,7 +47,7 @@ For skills with stack/variant-specific instructions that should load on demand:
 skills/<name>/
   SKILL.md            # thin orchestrator
   references/         # variant-specific fragments (loaded only when relevant)
-    <variant>.md      # e.g. stack-python.md, auto-mode.md, ios-apple-check.md
+    <variant>.md      # e.g. auto-mode.md, ios-apple-check.md, discover-section.md
   assets/             # file templates copied verbatim into projects
 ```
 
@@ -57,20 +57,17 @@ Templates shared across multiple skills stay at the repo-root `templates/` (curr
 
 ## Shared references (`skills/_shared/references/`)
 
-Six cross-skill references. Three are currently inactive after v3.0/3.1/3.2 Light migrations — kept for completeness in case the Heavy Engineer pattern returns.
+Three cross-skill references, all with active consumers. (The three Heavy-Engineer contract references — `subagent-preamble.md`, `yaml-return.md`, `present-summary.md` — were removed in v4.5.0 after two major versions with no consumer.)
 
 | Reference | Active in | Purpose |
 |---|---|---|
-| `subagent-preamble.md` | (no current consumer) | Sonnet subagent role + five mandatory rules. Reserved for any future Heavy Engineer skill. |
-| `yaml-return.md` | (no current consumer) | Structured YAML return contract. Reserved. |
-| `present-summary.md` | (no current consumer) | Orchestrator-side rendering for four `status` branches plus re-dispatch flow. Reserved. |
 | `mempalace-record.md` | All 8 MemPalace-using skills | Required record shape: `[WHAT] [WHY] [FILES] [DATE]` plus room-type rules and wing canonicalisation. |
 | `verify-pwd.md` | 6 Architect skills (`add-feature`, `fix-bug`, `discover`, `design-sync`, `design-page`, `ingest`) | Step 0.1 contract: `CLAUDE.md` presence check + canonical wing derivation. Skills reference this instead of inlining the 11-22-line block. |
-| `orchestration-conventions.md` | 10 dispatching skills (`add-feature`, `fix-bug`, `discover`, `discover-apple-check`, `design-sync`, `design-page`, `ingest`, `write-project-docs`, `write-test-docs`, `pre-release-check`) | Opus 4.8 dispatch contract: `Skill` vs `Agent` vs `Workflow`, model tiers (`opus`/`sonnet`/`haiku`), and what is / is not safe to parallelize. Skills point here instead of repeating it inline. |
+| `orchestration-conventions.md` | 9 dispatching skills (`add-feature`, `fix-bug`, `discover`, `discover-apple-check`, `design-sync`, `design-page`, `ingest`, `write-project-docs`, `write-test-docs`) | Opus 4.8 dispatch contract: `Skill` vs `Agent` vs `Workflow`, model tiers (`opus`/`sonnet`/`haiku`), and what is / is not safe to parallelize. Skills point here instead of repeating it inline. |
 
 ## Helper Scripts (`scripts/`)
 
-Fifteen POSIX-portable bash helpers (macOS + Linux, no python/node dependency). Each has a one-line synopsis at the top of its file. Skills consume their JSON output rather than re-implementing the same `find` / `grep` / `awk` in instructions.
+Fourteen POSIX-portable bash helpers (macOS + Linux, no python/node dependency). Each has a one-line synopsis at the top of its file. Skills consume their JSON output rather than re-implementing the same `find` / `grep` / `awk` in instructions.
 
 | Script | Used by | Purpose |
 |---|---|---|
@@ -79,7 +76,6 @@ Fifteen POSIX-portable bash helpers (macOS + Linux, no python/node dependency). 
 | `write-stub.sh` | `attach-project` | Idempotent placeholder Markdown writer: `# Title\n\n*to be filled*\n` |
 | `init-git-repo.sh` | none (legacy — `core.sh` inlines `git init`) | Idempotent `git init` + initial commit; safe to call on existing repos. |
 | `grep-replace-me.sh` | `pre-release-checks` | Quote-safe placeholder grep with consistent excludes. |
-| `parse-yaml-return.sh` | (reserved for future Heavy Engineer skills) | Locates the last fenced ` ```yaml ` block in a subagent response, validates `status:`, emits JSON. |
 | `section-status.sh` | `discover` | Scans `start-project.md` for filled vs pending sections. |
 | `changelog-from-git.sh` | `pre-release-checks` | Drafts a Markdown CHANGELOG section from `git log` (human edits before commit). |
 | `check-plan-scope.sh` | `add-feature` (Auto mode guard rails) | Verifies the diff stays within the approved plan (files, contract hash, read-only globs). |

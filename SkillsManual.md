@@ -616,7 +616,6 @@ $ cd ~/python-tax && claude
 | `pre-release-checks.sh` | `pre-release-check` (5 cross-platform checks → JSON) |
 | `check-plan-scope.sh` | `add-feature` Auto mode guard rails |
 | `changelog-from-git.sh` | `pre-release-check` (draft CHANGELOG з git log) |
-| `parse-yaml-return.sh` | reserved для Heavy Engineer pattern (наразі без consumer'а) |
 
 Усі скрипти POSIX-portable (macOS + Linux), без python/node залежностей, віддають JSON або машинно-читабельний текст. Більшість завершуються за <1 секунду.
 
