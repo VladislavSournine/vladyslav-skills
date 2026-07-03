@@ -2,7 +2,7 @@
 
 How skills dispatch work: which mechanism, which model, what is safe to run in parallel.
 
-Used by every skill that dispatches subagents or fans work out (`add-feature`, `fix-bug`, `discover`, `discover-apple-check`, `design-sync`, `design-page`, `ingest`, `write-project-docs`, `write-test-docs`, `pre-release-check`). Skills point here instead of repeating these rules inline.
+Used by every skill that dispatches subagents or fans work out (`add-feature`, `fix-bug`, `discover`, `discover-apple-check`, `design-sync`, `design-page`, `ingest`, `write-project-docs`, `write-test-docs`). Skills point here instead of repeating these rules inline.
 
 This **extends** the model-override rule in `CLAUDE.md` ("Working Rules") — it does not replace it. If they ever conflict, `CLAUDE.md` wins.
 

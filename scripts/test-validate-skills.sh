@@ -55,7 +55,9 @@ T "missing Type line fails" 1 "$R"
 R="$(make_valid)"; sed -i.bak 's/^name: alpha/name:/' "$R/skills/alpha/SKILL.md"
 T "blank name field fails" 1 "$R"
 
-R="$(make_valid)"; rm -rf "$R/skills/alpha" "$R/commands/alpha.md"
+# conv.md must go too: with its consumer skill gone it is a real orphan
+# under Check F, and this test is about frontmatter false-positives only.
+R="$(make_valid)"; rm -rf "$R/skills/alpha" "$R/commands/alpha.md" "$R/skills/_shared/references/conv.md"
 T "empty skills dir does not false-positive" 0 "$R"
 
 # --- Check B: command delegation + orphans ---
@@ -126,6 +128,35 @@ T "README lists unknown (non-existent) skill fails" 1 "$R"
 R="$(make_valid)"
 sed -i.bak 's/Skills that require MemPalace:/Skills that require MemPalace: `alpha`/' "$R/README.md"
 T "listed real skill without literal mempalace_ passes" 0 "$R"
+
+# --- Check F: orphaned references ---
+R="$(make_valid)"
+printf 'dead\n' > "$R/skills/_shared/references/dead.md"
+T "orphan _shared reference (no consumer) fails" 1 "$R"
+
+R="$(make_valid)"
+mkdir -p "$R/skills/alpha/references"
+printf 'unused\n' > "$R/skills/alpha/references/unused.md"
+T "orphan per-skill reference fails" 1 "$R"
+
+R="$(make_valid)"
+mkdir -p "$R/skills/alpha/references"
+printf 'used\n' > "$R/skills/alpha/references/used.md"
+printf 'see references/used.md\n' >> "$R/skills/alpha/SKILL.md"
+T "per-skill reference consumed by own SKILL.md passes" 0 "$R"
+
+# Two dead references citing each other must still fail — references are
+# not consumers (this is exactly how the Heavy Engineer contract rotted).
+R="$(make_valid)"
+printf 'cites cycle-b.md\n' > "$R/skills/_shared/references/cycle-a.md"
+printf 'cites cycle-a.md\n' > "$R/skills/_shared/references/cycle-b.md"
+T "mutually-referencing dead references still fail" 1 "$R"
+
+R="$(make_valid)"
+printf 'script-used\n' > "$R/skills/_shared/references/script-used.md"
+mkdir -p "$R/scripts"
+printf '# consumes script-used.md\n' > "$R/scripts/consumer.sh"
+T "reference consumed by a script passes" 0 "$R"
 
 printf '\n%s passed, %s failed\n' "$pass" "$failc"
 [ "$failc" -eq 0 ]

@@ -107,6 +107,25 @@ check_agent_model() { # name, file
   ' "$f")
 }
 
+check_orphan_references() {
+  # Every references/*.md under skills/ (incl. _shared) must have at least
+  # one consumer. Consumers are SKILL.md files, commands/*.md, scripts, or
+  # the repo CLAUDE.md — deliberately NOT other references files: two dead
+  # references citing each other must still fail (that is exactly how the
+  # Heavy Engineer contract references rotted unnoticed for two versions).
+  # Match is by basename (grep -F), a heuristic that tolerates any citation
+  # style (relative, repo-rooted, prose) at the cost of cross-skill
+  # basename collisions — acceptable at this repo's size.
+  local ref base
+  for ref in "$SKILLS"/*/references/*.md; do
+    [ -f "$ref" ] || continue
+    base="$(basename "$ref")"
+    cat "$SKILLS"/*/SKILL.md "$COMMANDS"/*.md "$ROOT"/scripts/*.sh \
+        "$ROOT"/scripts/*/*.sh "$ROOT/CLAUDE.md" 2>/dev/null \
+      | grep -qF "$base" || err "orphan reference: ${ref#"$ROOT"/}"
+  done
+}
+
 check_mempalace_readme() {
   local section d name f
   [ -f "$README" ] || { err "README: file missing"; return; }
@@ -138,6 +157,7 @@ main() {
   check_orphan_commands
   for_each_skill check_crossrefs
   for_each_skill check_agent_model
+  check_orphan_references
   check_mempalace_readme
   if [ "$fail" -ne 0 ]; then printf -- '--- validate-skills: FAILURES found\n'; exit 1; fi
   printf -- '--- validate-skills: all checks PASS\n'; exit 0

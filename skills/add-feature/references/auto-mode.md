@@ -20,15 +20,16 @@ For each batch of parallelizable tasks from the plan:
 
 2. **Wait for both agents to return.**
 
-3. **Run guard rail checks on the combined changes:**
-   - `git status --short` and `git diff --stat` on the worktree
-   - Compute the set of files touched
-   - **Check #1 (file count):** compare touched files vs the plan's file list. If more than **2 files** are outside the plan → STOP + report.
-   - **Check #2 (existing-file refactor):** for each touched file that IS in the plan, check whether it was marked "read-only reference" in the plan. If yes → STOP + report.
-   - **Check #3 (contract hash):** recompute `git hash-object <contract path>` and compare to the baseline from Step 4.5. If different → STOP + report.
-   - **Check #4 (scope expansion keyword):** scan either agent's output for `SCOPE EXPANSION REQUIRED`. If present → STOP + report that agent's message verbatim to the user.
+3. **Run the deterministic gate on the combined changes:**
+   - Write the plan's file list for this task to a temp file (one path per line; include the contract file and its `.sha256` baseline — they are gate plumbing, not scope violations). If the plan marked files "read-only reference", write those globs to a second temp file.
+   - Run:
+     `bash <plugin>/scripts/quality-gate.sh --pwd <worktree> --test-cmd "<project test command>" --plan-list <temp plan file> --contract <contract path> --readonly-globs <temp globs file>`
+   - It emits JSON with per-check results (`hygiene`, `secrets`, `scope`, `tests`). Interpret:
+     - **`hygiene`, `secrets`, or `tests` fail** → auto-gate blocker: STOP + report (same failure flow as Step 6.5).
+     - **`scope` fail** → apply the guard rails from its detail JSON: `contract_changed: true` or any `readonly_touched` entry → STOP + report; more than **2** `files_outside_plan` → STOP + report; 1–2 files outside the plan → note them in the report and continue.
+   - **Scope expansion keyword:** scan either agent's output for `SCOPE EXPANSION REQUIRED`. If present → STOP + report that agent's message verbatim to the user.
 
-4. **If all four checks pass → proceed to Step 6.5** (auto-gate). If Step 6.5 also passes → commit and move to the next batch.
+4. **If the gate and the keyword scan pass → proceed to Step 6.5** (auto-gate). If Step 6.5 also passes → commit and move to the next batch.
 
 5. **Repeat** until the plan is fully executed.
 
@@ -42,9 +43,9 @@ For each batch of parallelizable tasks from the plan:
 
 **Runs before every commit in auto mode. Blocks the commit on failure. No user approval needed for the gate itself — only if it fails.**
 
-Execute these three checks sequentially. If all pass → commit. If any fails → STOP, report, ask the user what to do.
+Execute these checks sequentially. If all pass → commit. If any fails → STOP, report, ask the user what to do.
 
-1. **Tests.** Detect the project's test command (`package.json scripts.test`, `pytest`, `go test ./...`, `xcodebuild test`, `Makefile test` target, or CLAUDE.md's documented test command). Run it against the current worktree. **Blocker if any test fails.**
+1. **Deterministic gate.** Tests, diff hygiene, secrets, and plan scope already ran via `quality-gate.sh` in Step 6. If anything changed since that run (review fixes, new files), re-run the same command. **Blocker if it exits non-zero.**
 
 2. **Code review.** Dispatch a review agent via the Agent tool:
    - `subagent_type: "pr-review-toolkit:code-reviewer"`, `model: "sonnet"` (preferred), or `subagent_type: "feature-dev:code-reviewer"`, `model: "sonnet"` as fallback
@@ -101,7 +102,7 @@ Do **NOT** merge into `main` automatically. Merge-to-main is **approval point #5
 **Automatic (no approval — runs nonstop):**
 - Worktree / branch creation (Step 3)
 - Parallel agent dispatch for tests + code (Step 6)
-- Tests → code review → SwiftUI review (iOS only) → security checks before each commit (Step 6.5)
+- Deterministic quality gate (tests, hygiene, secrets, scope — `quality-gate.sh`) → code review → SwiftUI review (iOS only) → security checks before each commit (Steps 6–6.5)
 - Commit messages, staging, committing
 - Merge to `dev` branch (Step 8)
 - Updates to `docs/product/user-stories.md`, `docs/architecture/api.md`, `docs/plans/tasks.md`
