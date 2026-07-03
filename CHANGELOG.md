@@ -1,5 +1,17 @@
 # Changelog
 
+## v4.6.0
+
+Quality-system hardening: dead standards removed, gates made deterministic.
+
+- **Removed orphaned per-language standards** — `skills/init-project/references/stack-{swift,go,python,kotlin,flutter,other}.md` + `backend-shared.md` were unreferenced since the v4.4.0 bash-module rewrite of `init-project`. Per-project conventions come from the project itself (`ingest`, `design-sync`), not from plugin-global prose.
+- **Removed the Heavy Engineer contract artifacts** — `skills/_shared/references/{subagent-preamble,yaml-return,present-summary}.md` and `scripts/parse-yaml-return.sh`; no consumer since v3.1.0. CLAUDE.md / README / SkillsManual / architecture doc no longer present the tier as live.
+- **`orchestration-conventions.md`** — dropped `pre-release-check` from the consumer list (it reads the Apple reviewer skill via the Read tool, never dispatches).
+- **Validator Check F (orphan references)** — `scripts/validate-skills.sh` now fails when any `skills/*/references/*.md` has no consumer among SKILL.md files, `commands/`, `scripts/`, or CLAUDE.md. References citing each other do not count — that is exactly how the Heavy Engineer contract rotted unnoticed. 5 new harness tests (26 total).
+- **`scripts/quality-gate.sh` (new)** — deterministic per-task "done" gate run in the target project: tests (given or auto-detected command) + diff hygiene (conflict markers, `REPLACE_ME`, debugger leftovers) + high-precision secret shapes + optional plan-scope check (delegates to `check-plan-scope.sh`). Single-line JSON report; exit code is the gate. 15-test harness in `scripts/test-quality-gate.sh`.
+- **`add-feature`** — Auto-mode Step 6 guard rails and Step 6.5 test check now run through `quality-gate.sh` instead of prose instructions (the ≤2-files-outside-plan tolerance is preserved at the skill layer); contract baseline is now a `<contract>.sha256` file consumed by the gate. Manual mode runs the gate before the final review (Step 7).
+- **`fix-bug`** — Step 5 requires a green `quality-gate.sh` run before code review.
+
 ## v4.5.0
 
 - `smoke-test-skills` skill + `scripts/validate-skills.sh`: deterministic repo-wide
