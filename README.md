@@ -44,7 +44,7 @@ Run any skill from a single Opus session. No manual `/model` switching required.
 | **Engineer (light) — bash-driven** (`init-project`, `attach-project`, `pre-release-check`) | Pre-flight Q&A in Opus main → a single deterministic bash helper does the work (~1 second) → summary rendered. |
 | **Engineer (light) — Opus inline** (`write-user-stories`, `write-test-docs`, `write-project-docs`, `compact-save`, `save`, `qsave`, `help`) | Pre-flight Q&A + LLM-driven generation, all in Opus main, no Sonnet subagent dispatch. |
 
-> **Heavy Engineer (deprecated):** v2.x wrapped Engineer skills in a Sonnet subagent dispatch with a YAML return contract. As of v3.1.0 no skill uses this pattern — the migrated skills run as Light Engineers. v4.5.0 removed the contract references (`subagent-preamble.md`, `yaml-return.md`, `present-summary.md`, `parse-yaml-return.sh`); recover them from git history if the pattern ever returns. See `docs/architecture/system.md`.
+> **Heavy Engineer (deprecated):** v2.x wrapped Engineer skills in a Sonnet subagent dispatch with a YAML return contract. As of v3.1.0 no skill uses this pattern — the migrated skills run as Light Engineers. v4.6.0 removed the contract references (`subagent-preamble.md`, `yaml-return.md`, `present-summary.md`, `parse-yaml-return.sh`); recover them from git history if the pattern ever returns. See `docs/architecture/system.md`.
 
 > Migrating from v1.x? The old dual-terminal split (Opus + Sonnet in separate windows) is gone. Close the second terminal — one Opus session handles everything.
 
