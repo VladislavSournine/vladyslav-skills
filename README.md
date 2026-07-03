@@ -62,7 +62,7 @@ Run any skill from a single Opus session. No manual `/model` switching required.
 | `/vladyslav:design-sync` | Extract design tokens from code into docs/design/system.md |
 | `/vladyslav:design-page` | Design app screens in Pencil via parallel subagents |
 | `/vladyslav:swiftui-pro` | SwiftUI/Swift code review for iOS 26 / Swift 6.2 best practices |
-| `/vladyslav:smoke-test-skills` | Batch-validate all plugin skills (frontmatter, command delegation, cross-references, Architect model= rule, README↔MemPalace sync) |
+| `/vladyslav:smoke-test-skills` | Batch-validate all plugin skills (frontmatter, command delegation, cross-references, Architect model= rule, orphan references, README↔MemPalace sync) |
 
 **Engineer (light) — bash-driven:**
 

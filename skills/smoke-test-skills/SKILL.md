@@ -1,6 +1,6 @@
 ---
 name: smoke-test-skills
-description: Use to batch-validate all skills in this plugin. Runs deterministic repo-wide static checks (frontmatter, command delegation, cross-references, Architect model= rule, README<->MemPalace sync) and reports pass/fail per skill.
+description: Use to batch-validate all skills in this plugin. Runs deterministic repo-wide static checks (frontmatter, command delegation, cross-references, Architect model= rule, orphan references, README<->MemPalace sync) and reports pass/fail per skill.
 ---
 
 **Type:** Architect
