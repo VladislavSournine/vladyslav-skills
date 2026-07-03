@@ -24,7 +24,7 @@ The plugin uses three Engineer/Architect patterns. Picking the right one for a n
 ### Heavy Engineer (deprecated)
 Pre-flight Q&A in Opus main + Sonnet subagent dispatch for the body + YAML return contract + allowlist enforcement.
 
-This pattern existed through v2.3.x. **As of v3.1.0, no skill in the plugin uses it.** v4.5.0 deleted the contract artifacts (`subagent-preamble.md`, `yaml-return.md`, `present-summary.md`, `scripts/parse-yaml-return.sh`) after two major versions with no consumer — git history preserves them if the pattern ever returns.
+This pattern existed through v2.3.x. **As of v3.1.0, no skill in the plugin uses it.** v4.6.0 deleted the contract artifacts (`subagent-preamble.md`, `yaml-return.md`, `present-summary.md`, `scripts/parse-yaml-return.sh`) after two major versions with no consumer — git history preserves them if the pattern ever returns.
 
 ## Skill Layout
 
@@ -57,7 +57,7 @@ Templates shared across multiple skills stay at the repo-root `templates/` (curr
 
 ## Shared references (`skills/_shared/references/`)
 
-Three cross-skill references, all with active consumers. (The three Heavy-Engineer contract references — `subagent-preamble.md`, `yaml-return.md`, `present-summary.md` — were removed in v4.5.0 after two major versions with no consumer.)
+Three cross-skill references, all with active consumers. (The three Heavy-Engineer contract references — `subagent-preamble.md`, `yaml-return.md`, `present-summary.md` — were removed in v4.6.0 after two major versions with no consumer.)
 
 | Reference | Active in | Purpose |
 |---|---|---|
@@ -67,7 +67,7 @@ Three cross-skill references, all with active consumers. (The three Heavy-Engine
 
 ## Helper Scripts (`scripts/`)
 
-Fourteen POSIX-portable bash helpers (macOS + Linux, no python/node dependency). Each has a one-line synopsis at the top of its file. Skills consume their JSON output rather than re-implementing the same `find` / `grep` / `awk` in instructions.
+Fifteen POSIX-portable bash helpers (macOS + Linux, no python/node dependency). Each has a one-line synopsis at the top of its file. Skills consume their JSON output rather than re-implementing the same `find` / `grep` / `awk` in instructions.
 
 | Script | Used by | Purpose |
 |---|---|---|
@@ -78,7 +78,8 @@ Fourteen POSIX-portable bash helpers (macOS + Linux, no python/node dependency).
 | `grep-replace-me.sh` | `pre-release-checks` | Quote-safe placeholder grep with consistent excludes. |
 | `section-status.sh` | `discover` | Scans `start-project.md` for filled vs pending sections. |
 | `changelog-from-git.sh` | `pre-release-checks` | Drafts a Markdown CHANGELOG section from `git log` (human edits before commit). |
-| `check-plan-scope.sh` | `add-feature` (Auto mode guard rails) | Verifies the diff stays within the approved plan (files, contract hash, read-only globs). |
+| `check-plan-scope.sh` | `quality-gate.sh` (scope check delegate) | Verifies the diff stays within the approved plan (files, contract hash, read-only globs). |
+| `quality-gate.sh` (v4.6.0) | `add-feature` (Auto mode Step 6 + Manual Step 7), `fix-bug` (Step 5) | Per-task "done" gate: tests + diff hygiene (conflict markers, placeholders, debugger leftovers) + secret shapes + optional plan scope → JSON; exit code is the gate. Tested by `test-quality-gate.sh`. |
 | `scripts/modules/core.sh` + `scripts/modules/*.sh` | `init-project` | Modular adaptive scaffolder. `core.sh` always writes the bare AI shell (CLAUDE.md, .claude/settings.json, .gitignore, .remember/). Optional modules (docs, backend-infra, agents, etc.) run only when selected via the interactive menu. |
 | `attach-project.sh` (v3.1.0) | `attach-project` | Auto-detect stack + skip-if-exists scaffolder for existing projects. |
 | `pre-release-checks.sh` (v3.1.0) | `pre-release-check` | Runs 5 cross-platform release checks (tasks, tests, config, docs, translations) → JSON. |

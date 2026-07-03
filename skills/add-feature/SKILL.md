@@ -32,7 +32,7 @@ Record the chosen mode for the rest of the flow. Do **not** default to Auto sile
 - More than **2 files touched outside the approved plan** (new files not in the plan)
 - **Any existing file refactored outside the plan** (refactor of a file that was "read-only reference" → STOP, regardless of size)
 - **Contract or spec changed during execution** (the contract file from Step 4.5 has been modified)
-- **Pre-commit auto-gate failure** (see Step 6.5) — tests, code review, or security check reports blocker
+- **Pre-commit auto-gate failure** (see Steps 6/6.5) — quality gate (tests, diff hygiene, secrets, scope via `scripts/quality-gate.sh`), code review, or security check reports blocker
 
 Any guard rail → stop, report the situation to the user, ask what to do. Do NOT attempt to work around a guard rail silently.
 
@@ -97,7 +97,7 @@ Save the contract as a section inside the design doc from Step 4, or as a separa
 
 **Both modes:** Present the contract to the user and ⏸ **stop for approval** — this is **approval point #3**. Read the contract out loud (it's 3-10 lines, trivial to verify). Do not proceed until the user approves.
 
-**Auto mode:** After approval, record the contract file path and its current git blob hash (via `git hash-object`) — this is the baseline for the "contract changed during execution" guard rail. If the hash changes during Step 6, it triggers a STOP.
+**Auto mode:** After approval, record the contract baseline for the "contract changed during execution" guard rail: `shasum -a 256 <contract path> | awk '{print $1}' > <contract path>.sha256`. The gate in Step 6 (`quality-gate.sh` → `check-plan-scope.sh`) compares against this file; if the contract drifts during execution, it triggers a STOP. Delete the `.sha256` file after the last batch — it is gate plumbing, not a deliverable.
 
 ### Step 4.7: Roadmap gate
 
@@ -209,9 +209,13 @@ Repeat this step after each chunk until all chunks are done.
 
 ### Step 7: Final code review (Manual mode)
 
-After ALL chunks are complete:
+After ALL chunks are complete, run the deterministic gate on the branch before any reviewer looks at it:
 
-⏸ Stop. Tell the user:
+`bash <plugin>/scripts/quality-gate.sh --pwd . --base $(git merge-base HEAD <dev-branch>) --test-cmd "<project test command>"`
+
+Fix and re-run until it exits 0 — it catches the mechanical failures (failing tests, debug leftovers, conflict markers, credential-shaped strings) so review time is spent on design, not noise.
+
+Then ⏸ Stop. Tell the user:
 "Step 7 complete. Now run /superpowers:requesting-code-review in your terminal for a final full-feature review.
 When done, come back and say 'done' to continue."
 

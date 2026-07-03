@@ -57,6 +57,7 @@ Invoke `superpowers:test-driven-development` skill:
 4. Run test — verify it passes
 5. Run full test suite — verify nothing else broke
 6. Run `git diff --stat` — confirm the change footprint matches the declared scope
+7. Run the deterministic gate: `bash <plugin>/scripts/quality-gate.sh --pwd . --test-cmd "<project test command>"` (add `--base <ref>` if the fix spans commits). Fix and re-run until it exits 0 — do not proceed to review with a red gate.
 
 ### Step 6: Code review
 

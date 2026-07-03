@@ -614,7 +614,8 @@ $ cd ~/python-tax && claude
 | Скрипт | Викликає скіл |
 |---|---|
 | `pre-release-checks.sh` | `pre-release-check` (5 cross-platform checks → JSON) |
-| `check-plan-scope.sh` | `add-feature` Auto mode guard rails |
+| `check-plan-scope.sh` | `quality-gate.sh` (scope-делегат для `add-feature` Auto mode) |
+| `quality-gate.sh` | `add-feature`, `fix-bug` — per-task "done" gate: тести + гігієна diff + секрети + scope → JSON |
 | `changelog-from-git.sh` | `pre-release-check` (draft CHANGELOG з git log) |
 
 Усі скрипти POSIX-portable (macOS + Linux), без python/node залежностей, віддають JSON або машинно-читабельний текст. Більшість завершуються за <1 секунду.
