@@ -97,7 +97,7 @@ Save the contract as a section inside the design doc from Step 4, or as a separa
 
 **Both modes:** Present the contract to the user and ⏸ **stop for approval** — this is **approval point #3**. Read the contract out loud (it's 3-10 lines, trivial to verify). Do not proceed until the user approves.
 
-**Auto mode:** After approval, record the contract baseline for the "contract changed during execution" guard rail: `shasum -a 256 <contract path> | awk '{print $1}' > <contract path>.sha256`. The gate in Step 6 (`quality-gate.sh` → `check-plan-scope.sh`) compares against this file; if the contract drifts during execution, it triggers a STOP. Delete the `.sha256` file after the last batch — it is gate plumbing, not a deliverable.
+**Auto mode:** After approval, record the contract baseline for the "contract changed during execution" guard rail: `sha256sum <contract path> | awk '{print $1}' > <contract path>.sha256` (use `shasum -a 256` where `sha256sum` is unavailable, e.g. stock macOS). The gate in Step 6 (`quality-gate.sh` → `check-plan-scope.sh`) compares against this file; if the contract drifts during execution, it triggers a STOP. Delete the `.sha256` file after the last batch — it is gate plumbing, not a deliverable.
 
 ### Step 4.7: Roadmap gate
 
