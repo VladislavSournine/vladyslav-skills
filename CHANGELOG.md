@@ -1,5 +1,21 @@
 # Changelog
 
+## v4.7.0
+
+Self-heal shell + plan-first discipline for the code-lifecycle skills.
+
+- **Self-heal shell (`_shared/references/self-heal-shell.md`, new)** — when `add-feature`
+  or `fix-bug` starts in a directory with no `CLAUDE.md`, Step 0 now offers a two-tier
+  inline bootstrap (Tier 1: bare shell via `attach-project.sh`; Tier 2: optional
+  `ingest`) instead of dead-ending. Nothing runs without a `y/n`. `init-project` /
+  `attach-project` remain available as explicit commands.
+- **`fix-bug` plan-first triage (Step 4.5)** — after diagnosis, the skill analyzes the
+  fix, recommends direct-vs-plan while surfacing critical-path risk, and lets the user
+  decide. The plan path writes a proportional plan + approval before any code changes.
+- **`fix-bug` MemPalace `problem` record (Step 8)** — a successful fix now records root
+  cause + fix + regression test to the project wing (`check_duplicate` first), closing
+  the gap versus `add-feature` (which already wrote a `decision`).
+
 ## v4.6.0
 
 Quality-system hardening: dead standards removed, gates made deterministic.
