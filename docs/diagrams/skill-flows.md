@@ -151,10 +151,12 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    A([/fix-bug]):::start --> B[Read project + bug report]
+    A([/fix-bug]):::start --> SH[Self-heal shell\nif no CLAUDE.md]:::approval
+    SH --> B[Read project + bug report]
     B --> C[Create worktree\nbranch: fix/description]
-    C --> D[Reproduce bug\nsystematic debugging]
-    D --> E[Write failing test\nTDD — test MUST fail first]
+    C --> D[Diagnose\nsystematic debugging]
+    D --> TR{Triage\nplan if non-trivial}:::approval
+    TR --> E[Write failing test\nTDD — test MUST fail first]
     E --> F[Fix root cause\nnot symptom]
     F --> G{Tests pass?}
     G -- no  --> F
@@ -166,6 +168,7 @@ flowchart LR
 
     classDef start fill:#d0f0d0,stroke:#006600,color:#003300,font-weight:bold
     classDef done  fill:#d0f0d0,stroke:#006600,color:#003300,font-weight:bold
+    classDef approval fill:#fde7c2,stroke:#a87000,color:#5a3a00,font-weight:bold
 ```
 
 ---
