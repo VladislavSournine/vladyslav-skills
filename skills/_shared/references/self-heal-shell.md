@@ -52,7 +52,7 @@ AskUserQuestion (separate gate):
 
 ## Tier 2 addendum — CodeGraph index (optional)
 
-If the `codegraph` CLI is available (detection in `_shared/references/codegraph.md`), Tier 2
+If the `codegraph` CLI is available (see `_shared/references/codegraph.md`), Tier 2
 additionally offers, as a separate `y/n`, to build a local code index:
 
 > "Побудувати CodeGraph-індекс коду (`codegraph init`)? Прискорює навігацію в майбутніх сесіях. (y/n)"

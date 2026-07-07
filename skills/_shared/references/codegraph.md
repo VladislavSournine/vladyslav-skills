@@ -22,8 +22,8 @@ Check in order; stop at the first that holds:
 | Need | CodeGraph | Fallback |
 |------|-----------|----------|
 | Code relevant to a topic / gather context | `explore "<query>"` (MCP: `codegraph_explore`) | grep + read |
-| Blast radius of changing a symbol | `impact <symbol>` | grep references |
-| Who calls / is called | `callers <symbol>` / `callees <symbol>` | grep + LSP getReferences |
+| Blast radius of changing a symbol | `impact <symbol>` (MCP: `codegraph_node`) | grep references |
+| Who calls / is called | `callers <symbol>` / `callees <symbol>` (MCP: `codegraph_node`) | grep + LSP getReferences |
 | Project structure | `files` | Glob / tree |
 
 ## Caveats (do not over-trust the graph)
