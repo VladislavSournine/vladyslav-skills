@@ -108,6 +108,22 @@ After merge:
 1. `docs/product/user-stories.md` — add note about the fix or update affected story status
 2. `docs/testing/manual-qa.md` — add regression check for this bug
 3. `docs/plans/tasks.md` — mark bug task as done (if it was tracked)
+4. **MemPalace `problem` record** — write to the project wing (derived in Step 0) so a
+   future session searching the symptom finds this rake immediately. Run
+   `mempalace_check_duplicate` first (MemPalace writes are never parallelized and always
+   dedup-checked — see `_shared/references/orchestration-conventions.md`). Content:
+
+   ```
+   [WHAT] баг <опис>
+   [ROOT CAUSE] <причина>
+   [FIX] <що змінено>
+   [FILES] <список>
+   [REGRESSION TEST] <файл::тест>
+   [DATE] <today>
+   ```
+
+   If MemPalace is unavailable, report that the record could not be written and continue —
+   do not fail the fix over it.
 
 ### Step 9: Finish
 
@@ -125,6 +141,7 @@ Updated:
 - docs/product/user-stories.md
 - docs/testing/manual-qa.md
 - docs/plans/tasks.md
+- MemPalace wing <name> — problem record added
 
 Do NOT add translations — wait for pre-release-check phase.
 
