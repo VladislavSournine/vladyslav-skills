@@ -48,6 +48,8 @@ Invoke `superpowers:systematic-debugging` skill. Follow it exactly — it will:
 - Identify root cause
 - Avoid jumping to conclusions
 
+> **Optional CodeGraph:** for root-cause localisation and blast radius, use CodeGraph per `<plugin>/skills/_shared/references/codegraph.md` if available (`explore`, `callers`, `impact`). Falls back to grep/LSP when absent.
+
 ### Step 4.5: Triage — is a plan needed?
 
 With the root cause identified, decide whether this fix needs an explicit plan. Do

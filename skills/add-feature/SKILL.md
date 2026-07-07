@@ -47,6 +47,8 @@ Read these files before anything else (independent reads — fetch them in one p
 - `docs/product/prd.md`
 - `docs/plans/tasks.md`
 
+> **Optional CodeGraph:** when exploring the codebase for context (here and during brainstorming/planning), prefer CodeGraph per `<plugin>/skills/_shared/references/codegraph.md` if available — `impact` on affected symbols helps predict the plan's file list for the Step 5 guard rails. Falls back to grep/LSP when absent.
+
 ### Step 2: Get feature description
 
 Ask the user to describe the feature they want to add. Free text.
