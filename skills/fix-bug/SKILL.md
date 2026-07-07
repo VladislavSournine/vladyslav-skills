@@ -48,6 +48,33 @@ Invoke `superpowers:systematic-debugging` skill. Follow it exactly — it will:
 - Identify root cause
 - Avoid jumping to conclusions
 
+### Step 4.5: Triage — is a plan needed?
+
+With the root cause identified, decide whether this fix needs an explicit plan. Do
+**not** apply a rigid rule — **analyze, state an assumption + recommendation, then ask
+the user**. The user's choice always wins.
+
+1. **Assess and recommend.** State your read of the fix, e.g.:
+   - *"Тривіальний однорядковий — інвертована умова, blast radius = місце бага → рекомендую фіксити напряму, без плану."*
+   - *"Зачіпає auth-шлях / потрібен ресерч, кілька файлів → рекомендую спершу короткий план."*
+   Surface **criticality** yourself: if the fix sits on a critical path (auth, payments,
+   data integrity), say so — a one-liner there may still deserve a plan. You raise it;
+   the user decides.
+
+2. **Ask:** "Фіксити напряму, чи спершу короткий план?"
+
+3. **Plan path** → write a short, proportional plan:
+   - root cause (one line)
+   - the exact change you will make
+   - files touched
+   - regression-test approach
+   Then ⏸ **stop for approval**. Once approved, Step 5 implements **only** what the plan
+   describes — this is under the Blast Radius Rule; any expansion needs a new approval.
+   Plan length scales with the bug: two sentences for a one-liner, a real plan for a
+   structural fix.
+
+4. **Direct path** → proceed to Step 5 unchanged.
+
 ### Step 5: Write regression test + fix
 
 **Respect the Blast Radius Rule** (see `~/.claude/CLAUDE.md`): the fix must be the smallest justified change that addresses the root cause. If a larger restructuring would genuinely be better, **STOP and ask the user** before expanding scope — don't silently refactor.
