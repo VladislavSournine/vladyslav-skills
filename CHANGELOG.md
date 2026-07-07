@@ -1,5 +1,15 @@
 # Changelog
 
+## v4.8.0
+
+Optional CodeGraph integration — faster code navigation for the scanning skills, zero new required dependency.
+
+- **`_shared/references/codegraph.md` (new)** — contract for the optional CodeGraph local index (detect → task/command map → caveats → grep/LSP fallback). CodeGraph is never required: absent it, `ingest` / `add-feature` / `fix-bug` behave exactly as before.
+- **Pointers added** — `ingest` (Step 4), `add-feature` (Step 1), `fix-bug` (Step 4) now prefer `codegraph_explore` / `impact` when available, falling back to grep/Glob/LSP otherwise.
+- **Self-heal Tier 2** — now offers an optional `codegraph init` (separate y/n) when the CLI is present; skipped silently otherwise.
+- **`.codegraph/` gitignored** — added to the `init-project` (`core.sh`) and `attach-project` scaffolders; the local index is machine-specific build output.
+- **README / CLAUDE.md** — new "Optional: CodeGraph code index" section and an optional-dependency note; the required-MemPalace lists are unchanged.
+
 ## v4.7.0
 
 Self-heal shell + plan-first discipline for the code-lifecycle skills.
