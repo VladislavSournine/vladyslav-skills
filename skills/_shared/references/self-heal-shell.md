@@ -50,8 +50,14 @@ AskUserQuestion (separate gate):
   the calling skill.
 - **n →** continue on the bare shell; the calling skill proceeds normally.
 
-## Future hook (inert now — do not implement here)
+## Tier 2 addendum — CodeGraph index (optional)
 
-When the CodeGraph integration lands, Tier 2 will additionally offer `codegraph init`
-to build the code index. Left as a documented note only; this reference adds no
-CodeGraph behaviour today.
+If the `codegraph` CLI is available (detection in `_shared/references/codegraph.md`), Tier 2
+additionally offers, as a separate `y/n`, to build a local code index:
+
+> "Побудувати CodeGraph-індекс коду (`codegraph init`)? Прискорює навігацію в майбутніх сесіях. (y/n)"
+
+- **y →** run `codegraph init` at the project root.
+- **n →** skip.
+
+Skipped silently if the CLI is absent — CodeGraph is optional and never required.
