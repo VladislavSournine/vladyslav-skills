@@ -17,6 +17,8 @@ Full-cycle feature addition: idea → design → plan → implement → docs. Or
 
 Apply the verify-working-directory contract from `<plugin>/skills/_shared/references/verify-pwd.md`: confirms CLAUDE.md exists, derives the canonical MemPalace wing name, warns on stale-wing duplicates, and establishes the mandatory path-validation rule for the rest of this skill's MemPalace reads.
 
+**If `CLAUDE.md` is missing, do not dead-end** — apply `<plugin>/skills/_shared/references/self-heal-shell.md` to offer an inline shell bootstrap, then continue. Only STOP if the user declines.
+
 Additionally, read the project name from `CLAUDE.md` (first heading or `# <ProjectName>` line).
 
 ### Step 0.5: Choose mode

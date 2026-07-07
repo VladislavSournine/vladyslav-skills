@@ -17,6 +17,8 @@ Full-cycle bug fix: diagnose → fix → test → review → merge → update do
 
 Apply the verify-working-directory contract from `<plugin>/skills/_shared/references/verify-pwd.md`: confirms CLAUDE.md exists, derives the canonical MemPalace wing name, warns on stale-wing duplicates, and establishes the mandatory path-validation rule for the rest of this skill's MemPalace reads.
 
+**If `CLAUDE.md` is missing, do not dead-end** — apply `<plugin>/skills/_shared/references/self-heal-shell.md` to offer an inline shell bootstrap, then continue. Only STOP if the user declines.
+
 ### Step 1: Read project context
 
 Read these files before anything else (independent reads — fetch them in one parallel batch). For subagent dispatch, model tiers, and parallelism-safety rules used throughout this skill, see `_shared/references/orchestration-conventions.md`.
