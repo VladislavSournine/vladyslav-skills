@@ -15,7 +15,7 @@ Composed into Step 0 of each skill — before any user Q&A, before any MemPalace
    > ✗ No CLAUDE.md found at `<pwd>`.
    > This skill operates on an established project — run `/vladyslav:init-project` (new project) or `/vladyslav:attach-project` (existing one without Claude Code structure) first.
 
-   Do NOT proceed.
+   Do NOT proceed — **unless the calling skill defines a self-heal branch** (`add-feature`, `fix-bug`), in which case hand off to `_shared/references/self-heal-shell.md` to offer an inline bootstrap instead of stopping. The other consumers (`design-sync`, `design-page`, `ingest`, `pre-release-check`) still hard-STOP here.
 
 4. If it DOES exist, read its first 50 lines to confirm it looks like a vladyslav-shaped project (presence of a "Source of Truth" or similar table is a strong signal). If the file looks empty or off-shape, warn the user but allow continuation:
 
