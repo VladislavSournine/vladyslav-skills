@@ -295,6 +295,7 @@ fi
 gitignore_append "Editors / OS" ".DS_Store" ".idea/" ".vscode/" "*.swp" "*.swo"
 gitignore_append "Secrets / env" ".env" ".env.*" "!.env.example" "secrets/" ".claude/settings.local.json"
 gitignore_append "Logs / build artifacts" "*.log" "logs/" "build/" "dist/" "coverage/"
+gitignore_append "CodeGraph (optional local index)" ".codegraph/"
 
 # Private mode: ignore AI workflow files
 if [ "$PRIVATE_MODE" = "yes" ]; then

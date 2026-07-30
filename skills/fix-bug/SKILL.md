@@ -17,6 +17,8 @@ Full-cycle bug fix: diagnose → fix → test → review → merge → update do
 
 Apply the verify-working-directory contract from `<plugin>/skills/_shared/references/verify-pwd.md`: confirms CLAUDE.md exists, derives the canonical MemPalace wing name, warns on stale-wing duplicates, and establishes the mandatory path-validation rule for the rest of this skill's MemPalace reads.
 
+**If `CLAUDE.md` is missing, do not dead-end** — apply `<plugin>/skills/_shared/references/self-heal-shell.md` to offer an inline shell bootstrap, then continue. Only STOP if the user declines.
+
 ### Step 1: Read project context
 
 Read these files before anything else (independent reads — fetch them in one parallel batch). For subagent dispatch, model tiers, and parallelism-safety rules used throughout this skill, see `_shared/references/orchestration-conventions.md`.
@@ -45,6 +47,35 @@ Invoke `superpowers:systematic-debugging` skill. Follow it exactly — it will:
 - Gather evidence systematically
 - Identify root cause
 - Avoid jumping to conclusions
+
+> **Optional CodeGraph:** for root-cause localisation and blast radius, use CodeGraph per `<plugin>/skills/_shared/references/codegraph.md` if available (`explore`, `callers`, `impact`). Falls back to grep/LSP when absent.
+
+### Step 4.5: Triage — is a plan needed?
+
+With the root cause identified, decide whether this fix needs an explicit plan. Do
+**not** apply a rigid rule — **analyze, state an assumption + recommendation, then ask
+the user**. The user's choice always wins.
+
+1. **Assess and recommend.** State your read of the fix, e.g.:
+   - *"Тривіальний однорядковий — інвертована умова, blast radius = місце бага → рекомендую фіксити напряму, без плану."*
+   - *"Зачіпає auth-шлях / потрібен ресерч, кілька файлів → рекомендую спершу короткий план."*
+   Surface **criticality** yourself: if the fix sits on a critical path (auth, payments,
+   data integrity), say so — a one-liner there may still deserve a plan. You raise it;
+   the user decides.
+
+2. **Ask:** "Фіксити напряму, чи спершу короткий план?"
+
+3. **Plan path** → write a short, proportional plan:
+   - root cause (one line)
+   - the exact change you will make
+   - files touched
+   - regression-test approach
+   Then ⏸ **stop for approval**. Once approved, Step 5 implements **only** what the plan
+   describes — this is under the Blast Radius Rule; any expansion needs a new approval.
+   Plan length scales with the bug: two sentences for a one-liner, a real plan for a
+   structural fix.
+
+4. **Direct path** → proceed to Step 5 unchanged.
 
 ### Step 5: Write regression test + fix
 
@@ -79,6 +110,22 @@ After merge:
 1. `docs/product/user-stories.md` — add note about the fix or update affected story status
 2. `docs/testing/manual-qa.md` — add regression check for this bug
 3. `docs/plans/tasks.md` — mark bug task as done (if it was tracked)
+4. **MemPalace `problem` record** — write to the project wing (derived in Step 0) so a
+   future session searching the symptom finds this rake immediately. Run
+   `mempalace_check_duplicate` first (MemPalace writes are never parallelized and always
+   dedup-checked — see `_shared/references/orchestration-conventions.md`). Content:
+
+   ```
+   [WHAT] баг <опис>
+   [ROOT CAUSE] <причина>
+   [FIX] <що змінено>
+   [FILES] <список>
+   [REGRESSION TEST] <файл::тест>
+   [DATE] <today>
+   ```
+
+   If MemPalace is unavailable, report that the record could not be written and continue —
+   do not fail the fix over it.
 
 ### Step 9: Finish
 
@@ -96,6 +143,7 @@ Updated:
 - docs/product/user-stories.md
 - docs/testing/manual-qa.md
 - docs/plans/tasks.md
+- MemPalace wing <name> — problem record added
 
 Do NOT add translations — wait for pre-release-check phase.
 

@@ -17,6 +17,8 @@ Full-cycle feature addition: idea → design → plan → implement → docs. Or
 
 Apply the verify-working-directory contract from `<plugin>/skills/_shared/references/verify-pwd.md`: confirms CLAUDE.md exists, derives the canonical MemPalace wing name, warns on stale-wing duplicates, and establishes the mandatory path-validation rule for the rest of this skill's MemPalace reads.
 
+**If `CLAUDE.md` is missing, do not dead-end** — apply `<plugin>/skills/_shared/references/self-heal-shell.md` to offer an inline shell bootstrap, then continue. Only STOP if the user declines.
+
 Additionally, read the project name from `CLAUDE.md` (first heading or `# <ProjectName>` line).
 
 ### Step 0.5: Choose mode
@@ -44,6 +46,8 @@ Read these files before anything else (independent reads — fetch them in one p
 - `docs/architecture/api.md` (if exists)
 - `docs/product/prd.md`
 - `docs/plans/tasks.md`
+
+> **Optional CodeGraph:** when exploring the codebase for context (here and during brainstorming/planning), prefer CodeGraph per `<plugin>/skills/_shared/references/codegraph.md` if available — `impact` on affected symbols helps predict the plan's file list for the Step 5 guard rails. Falls back to grep/LSP when absent.
 
 ### Step 2: Get feature description
 
@@ -97,7 +101,7 @@ Save the contract as a section inside the design doc from Step 4, or as a separa
 
 **Both modes:** Present the contract to the user and ⏸ **stop for approval** — this is **approval point #3**. Read the contract out loud (it's 3-10 lines, trivial to verify). Do not proceed until the user approves.
 
-**Auto mode:** After approval, record the contract baseline for the "contract changed during execution" guard rail: `shasum -a 256 <contract path> | awk '{print $1}' > <contract path>.sha256`. The gate in Step 6 (`quality-gate.sh` → `check-plan-scope.sh`) compares against this file; if the contract drifts during execution, it triggers a STOP. Delete the `.sha256` file after the last batch — it is gate plumbing, not a deliverable.
+**Auto mode:** After approval, record the contract baseline for the "contract changed during execution" guard rail: `sha256sum <contract path> | awk '{print $1}' > <contract path>.sha256` (use `shasum -a 256` where `sha256sum` is unavailable, e.g. stock macOS). The gate in Step 6 (`quality-gate.sh` → `check-plan-scope.sh`) compares against this file; if the contract drifts during execution, it triggers a STOP. Delete the `.sha256` file after the last batch — it is gate plumbing, not a deliverable.
 
 ### Step 4.7: Roadmap gate
 

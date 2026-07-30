@@ -5,9 +5,12 @@ Manual і Auto modes в одному потоці. 5 approval points, 4 guard ra
 ```mermaid
 flowchart TD
     A([/vladyslav:add-feature]):::start
-    A --> S0[Step 0<br/>Verify Opus model]
+    A --> S0[Step 0<br/>Architect skill · Opus main]
     S0 --> S01[Step 0.1<br/>Validate working dir<br/>+ canonical wing name]
-    S01 --> Q1{Step 0.5<br/>Manual or Auto?}
+    S01 --> H0{CLAUDE.md missing?}
+    H0 -- yes --> SH[Self-heal shell<br/>Tier 1 attach y/n<br/>Tier 2 ingest y/n]:::approval
+    SH --> Q1
+    H0 -- no --> Q1{Step 0.5<br/>Manual or Auto?}
     Q1 --> S1[Step 1<br/>Read CLAUDE.md, architecture,<br/>prd, tasks]
     S1 --> S2[Step 2<br/>Get feature description]
     S2 --> AP1{{Approval #1<br/>feature description}}:::approval

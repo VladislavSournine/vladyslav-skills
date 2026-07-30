@@ -59,7 +59,7 @@ CHECKS=""
 
 add_check() { # name, status, detail
   local esc
-  esc="$(printf '%s' "$3" | tr '\n' ' ' | sed 's/\\/\\\\/g; s/"/\\"/g')"
+  esc="$(printf '%s' "$3" | tr '\n\t\r' '   ' | sed 's/\\/\\\\/g; s/"/\\"/g')"
   CHECKS="${CHECKS:+$CHECKS,}{\"name\":\"$1\",\"status\":\"$2\",\"detail\":\"$esc\"}"
   [ "$2" = "fail" ] && fail=1
 }

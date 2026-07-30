@@ -29,6 +29,7 @@ logs/
 build/
 dist/
 coverage/
+.codegraph/
 "
 
 write_file ".claude/settings.json" '{

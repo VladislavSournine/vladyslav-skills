@@ -32,7 +32,7 @@
 
 ### Додавання фічі
 
-- **`/vladyslav:add-feature`** 🧠 — повний цикл: `brainstorm → contract → plan → parallel execution (tests + code) → auto-gate (tests + review + security) → merge → docs update`.
+- **`/vladyslav:add-feature`** 🧠 — повний цикл: `self-heal shell (якщо нема) → brainstorm → contract → plan → parallel execution (tests + code) → auto-gate (tests + review + security) → merge → docs update`.
 - Автоматично діють: Blast Radius Rule (мінімальні зміни), Contract-First (контракт до коду), Mandatory Code Review (чекліст).
 - **Два режими** (скіл питає на старті):
   - **Manual** — stop-and-tell після кожної фази. Для нетипових/ризикових фіч.
@@ -114,7 +114,7 @@
 
 ### Фікс багу
 
-- **`/vladyslav:fix-bug`** 🧠 — повний цикл: `worktree → systematic-debugging → regression test → minimal fix → code review → merge → docs update`.
+- **`/vladyslav:fix-bug`** 🧠 — повний цикл: `self-heal shell (якщо нема) → worktree → systematic-debugging → triage (план якщо нетривіально) → regression test → minimal fix → code review → merge → docs + MemPalace problem record`.
 - Автоматично використовує `superpowers:systematic-debugging` (не стрибає до висновків).
 - Автоматично діє Blast Radius Rule — якщо потрібен більший рефакторинг, спитає дозволу.
 

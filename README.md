@@ -32,6 +32,18 @@ claude
 
 The other skills (`init-project`, `attach-project`, `write-*`, `help`, `swiftui-pro`, `design-page`, `smoke-test-skills`) work without MemPalace.
 
+### Optional: CodeGraph code index
+
+[CodeGraph](https://github.com/colbymchenry/codegraph) is an **optional** local code index (MCP server — SQLite + FTS5 + tree-sitter, MIT, 100% local, no API keys). When installed and indexed, `ingest`, `add-feature`, and `fix-bug` fetch relevant code + blast-radius in one call instead of many grep/read calls. It is **not required** — without it these skills fall back to grep/Glob/LSP with no change in behaviour, and it is independent of the (required) MemPalace server.
+
+One-time setup — per machine, then per project:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/colbymchenry/codegraph/main/install.sh | sh
+codegraph install                    # wire it into Claude Code as an MCP server
+cd your-project && codegraph init    # build the local index (.codegraph/, gitignored)
+```
+
 Upgrading from ≤ v4.2.0 and seeing duplicate wings (e.g. `swift-Sudoku` vs `swift-sudoku`, or `plugin-foo` vs `foo`)? See [`docs/operations/wing-migration.md`](docs/operations/wing-migration.md) — most users only need to update the plugin.
 
 ## One-Terminal Workflow (v3.x)
