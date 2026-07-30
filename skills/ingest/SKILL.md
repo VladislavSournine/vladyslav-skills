@@ -101,6 +101,8 @@ Path-validation rule applies to every search result — drawers referencing non-
 
 ### Step 4: Synthesise architecture docs  *(`sonnet` subagent)*
 
+> **Optional CodeGraph:** if a local code index is available, enrich the narrative and cross-checks using CodeGraph per `<plugin>/skills/_shared/references/codegraph.md` (`files` for structure, `explore` for load-bearing areas). Falls back to the `ARCH` JSON + reads when absent — CodeGraph is optional.
+
 Using `ARCH`, write or update:
 
 - **`docs/architecture/system.md`** — high-level narrative derived from `stacks`, `entry_points`, and the codebase layout. 2-4 paragraphs. Preserve any user-edited sections if the file already exists; merge rather than overwrite.

@@ -58,11 +58,15 @@ T "committed marker caught with --base HEAD~1" 1 --pwd "$R" --test-cmd true --ba
 
 # --- scope delegation to check-plan-scope.sh ---
 # plan/contract fixtures live OUTSIDE the repo so they don't appear in its diff
+sha256() { # portable: sha256sum on Linux, shasum on macOS
+  if command -v sha256sum >/dev/null 2>&1; then sha256sum "$1"; else shasum -a 256 "$1"; fi
+}
+
 scope_fixtures() { # $1 = allowed path
   SCOPE_DIR="$(mktemp -d)"
   printf '%s\n' "$1" > "$SCOPE_DIR/plan.txt"
   printf 'contract\n' > "$SCOPE_DIR/contract.md"
-  shasum -a 256 "$SCOPE_DIR/contract.md" | awk '{print $1}' > "$SCOPE_DIR/contract.md.sha256"
+  sha256 "$SCOPE_DIR/contract.md" | awk '{print $1}' > "$SCOPE_DIR/contract.md.sha256"
 }
 
 R="$(make_repo)"; printf 'new\n' > "$R/feature.txt"; scope_fixtures "feature.txt"
@@ -75,6 +79,15 @@ T "scope: outside-plan file fails" 1 --pwd "$R" --test-cmd true \
 
 R="$(make_repo)"
 T "scope: skipped when no --plan-list (passes)" 0 --pwd "$R" --test-cmd true
+
+# --- JSON stays valid when matched content carries control characters ---
+R="$(make_repo)"; printf '\tdebugger;\n' > "$R/tabbed.js"
+out="$("$GATE" --pwd "$R" --test-cmd true 2>/dev/null)"
+if printf '%s' "$out" | grep -q "$(printf '\t')"; then
+  failc=$((failc+1)); printf 'FAIL - raw tab leaks into JSON output\n'
+else
+  pass=$((pass+1)); printf 'ok   - tab-indented match does not break JSON output\n'
+fi
 
 # --- usage errors ---
 D="$(mktemp -d)"

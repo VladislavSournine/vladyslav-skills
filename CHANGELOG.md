@@ -1,5 +1,31 @@
 # Changelog
 
+## v4.8.0
+
+Optional CodeGraph integration — faster code navigation for the scanning skills, zero new required dependency.
+
+- **`_shared/references/codegraph.md` (new)** — contract for the optional CodeGraph local index (detect → task/command map → caveats → grep/LSP fallback). CodeGraph is never required: absent it, `ingest` / `add-feature` / `fix-bug` behave exactly as before.
+- **Pointers added** — `ingest` (Step 4), `add-feature` (Step 1), `fix-bug` (Step 4) now prefer `codegraph_explore` / `impact` when available, falling back to grep/Glob/LSP otherwise.
+- **Self-heal Tier 2** — now offers an optional `codegraph init` (separate y/n) when the CLI is present; skipped silently otherwise.
+- **`.codegraph/` gitignored** — added to the `init-project` (`core.sh`) and `attach-project` scaffolders; the local index is machine-specific build output.
+- **README / CLAUDE.md** — new "Optional: CodeGraph code index" section and an optional-dependency note; the required-MemPalace lists are unchanged.
+
+## v4.7.0
+
+Self-heal shell + plan-first discipline for the code-lifecycle skills.
+
+- **Self-heal shell (`_shared/references/self-heal-shell.md`, new)** — when `add-feature`
+  or `fix-bug` starts in a directory with no `CLAUDE.md`, Step 0 now offers a two-tier
+  inline bootstrap (Tier 1: bare shell via `attach-project.sh`; Tier 2: optional
+  `ingest`) instead of dead-ending. Nothing runs without a `y/n`. `init-project` /
+  `attach-project` remain available as explicit commands.
+- **`fix-bug` plan-first triage (Step 4.5)** — after diagnosis, the skill analyzes the
+  fix, recommends direct-vs-plan while surfacing critical-path risk, and lets the user
+  decide. The plan path writes a proportional plan + approval before any code changes.
+- **`fix-bug` MemPalace `problem` record (Step 8)** — a successful fix now records root
+  cause + fix + regression test to the project wing (`check_duplicate` first), closing
+  the gap versus `add-feature` (which already wrote a `decision`).
+
 ## v4.6.0
 
 Quality-system hardening: dead standards removed, gates made deterministic.

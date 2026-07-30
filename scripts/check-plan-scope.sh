@@ -54,7 +54,11 @@ contract_changed=false
 BASELINE="$CONTRACT.sha256"
 if [ -f "$BASELINE" ]; then
     EXPECTED="$(cat "$BASELINE")"
-    ACTUAL="$(shasum -a 256 "$CONTRACT" 2>/dev/null | awk '{print $1}')"
+    if command -v sha256sum >/dev/null 2>&1; then
+        ACTUAL="$(sha256sum "$CONTRACT" 2>/dev/null | awk '{print $1}')"
+    else
+        ACTUAL="$(shasum -a 256 "$CONTRACT" 2>/dev/null | awk '{print $1}')"
+    fi
     if [ "$EXPECTED" != "$ACTUAL" ]; then
         contract_changed=true
     fi
