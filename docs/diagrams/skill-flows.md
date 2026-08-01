@@ -81,7 +81,7 @@ flowchart LR
     AP3 --> J[Execute plan\nsubagents · parallel agents\nguard rails + auto-gate]
     J --> K[Code review]
     K --> L[Merge to dev]
-    L --> M([Architect report\n→ /write-test-docs]):::done
+    L --> M([Architect report\n→ /write-docs]):::done
 
     classDef start    fill:#d0f0d0,stroke:#006600,color:#003300,font-weight:bold
     classDef done     fill:#d0f0d0,stroke:#006600,color:#003300,font-weight:bold
@@ -107,7 +107,7 @@ flowchart LR
     H --> I{Feedback?}
     I -- yes --> F
     I -- no  --> J[Merge + MemPalace\nproblem record]
-    J --> K([Done → /write-test-docs]):::done
+    J --> K([Done → /write-docs]):::done
 
     classDef start fill:#d0f0d0,stroke:#006600,color:#003300,font-weight:bold
     classDef done  fill:#d0f0d0,stroke:#006600,color:#003300,font-weight:bold
@@ -135,53 +135,12 @@ flowchart LR
 
 ## Docs, Ship and Memory Skills
 
-### write-user-stories — Generate user story registry
+### write-docs — one menu-driven skill for stories / tests / project docs
 
-```mermaid
-flowchart LR
-    A([/write-user-stories]):::start --> B[Read PRD + API\n+ architecture]
-    B --> C[Scan codebase\nfor implemented features\nroutes / screens / tests]
-    C --> D["Write stories:\nAS [role] I CAN [action]\nSO THAT [benefit]\n+ acceptance criteria\n+ status: Done/Partial/Not started"]
-    D --> E[Save\ndocs/product/user-stories.md]
-    E --> F([Done]):::done
-
-    classDef start fill:#d0f0d0,stroke:#006600,color:#003300,font-weight:bold
-    classDef done  fill:#d0f0d0,stroke:#006600,color:#003300,font-weight:bold
-```
-
----
-
-### write-test-docs — Generate test plan + manual QA checklist
-
-```mermaid
-flowchart LR
-    A([/write-test-docs]):::start --> B[Read PRD\n+ user-stories\n+ architecture + tests]
-    B --> C[Generate test plan\nunit / integration\nedge cases from PRD]
-    C --> D[Generate manual QA\nchecklist per user flow\nhappy path + errors\n+ empty + loading]
-    D --> E[Write\ndocs/testing/test-plan.md\n+ manual-qa.md]
-    E --> F([Done]):::done
-
-    classDef start fill:#d0f0d0,stroke:#006600,color:#003300,font-weight:bold
-    classDef done  fill:#d0f0d0,stroke:#006600,color:#003300,font-weight:bold
-```
-
----
-
-### write-project-docs — Generate README + onboarding + deployment docs
-
-```mermaid
-flowchart LR
-    A([/write-project-docs]):::start --> B[Read CLAUDE.md\n+ architecture\n+ deployment configs]
-    B --> C[Write README.md\nhow to run + structure\n+ API overview]
-    C --> D[Write docs/onboarding.md\nsetup + workflow + tests]
-    D --> E[Write docs/deployment.md\nsteps + env vars + rollback]
-    E --> F([Done]):::done
-
-    classDef start fill:#d0f0d0,stroke:#006600,color:#003300,font-weight:bold
-    classDef done  fill:#d0f0d0,stroke:#006600,color:#003300,font-weight:bold
-```
-
----
+Merged from write-user-stories + write-test-docs + write-project-docs in v5.0.0.
+Flow: pre-flight (CLAUDE.md + mode + required inputs) → read inputs in full →
+generate (stories inline; tests = 2 parallel sonnet agents; project = 3 parallel
+sonnet agents + no-AI-mention gate) → summary.
 
 ### pre-release-check — Final gate before production
 

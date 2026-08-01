@@ -20,7 +20,7 @@ Single-pass project intake. Two bash scripts produce the discovery JSON; Opus ma
 ## When NOT to use
 
 - Brand-new project from `init-project` — that already scaffolds `docs/architecture/` and there is no git history to seed from.
-- Pure documentation-only updates — use `write-project-docs` instead.
+- Pure documentation-only updates — use `write-docs` (project mode) instead.
 
 ## Process
 
@@ -186,7 +186,7 @@ CLAUDE.md memory pointer: <added | updated | unchanged>
 
 Next steps:
 - /vladyslav:add-feature  — build new features with both architecture docs and MemPalace context now ready
-- /vladyslav:write-user-stories — if a registry of implemented features is needed
+- /vladyslav:write-docs — if user stories / test docs / project docs are needed
 ```
 
 ---

@@ -7,14 +7,14 @@
 ## Передумови
 
 - **Claude Code** — встановлений
-- **Superpowers plugin** — потрібен для `add-feature`, `fix-bug`, `ingest`, `pre-release-check`, `write-test-docs`
+- **Superpowers plugin** — потрібен для `add-feature`, `fix-bug`, `ingest`, `pre-release-check`, `write-docs`
 - **MemPalace MCP server** 🧠 — потрібен для 8 скілів нижче. Без нього вони впадуть на першому ж виклику `mempalace_*` тулзи.
 
 ### Скіли що вимагають MemPalace 🧠
 
-`add-feature` · `fix-bug` · `ingest` · `pre-release-check` · `compact-save` · `save` · `qsave`
+`add-feature` · `fix-bug` · `ingest` · `pre-release-check` · `compact-save` · `qsave`
 
-Інші скіли (`orchestrate`, `init-project`, `attach-project`, `write-user-stories`, `write-test-docs`, `write-project-docs`, `swiftui-pro`, `smoke-test-skills`) працюють без MemPalace.
+Інші скіли (`orchestrate`, `init-project`, `attach-project`, `write-docs`, `swiftui-pro`, `smoke-test-skills`) працюють без MemPalace.
 
 ---
 
@@ -68,13 +68,12 @@
 
 ### Документування проекту
 
-- **`/vladyslav:write-project-docs`** — README, onboarding guide, deployment docs з коду + PRD.
+- **`/vladyslav:write-docs`** — один скіл з меню: user stories / test plan + QA / README + onboarding + deployment (або all).
 - **`/vladyslav:ingest`** 🧠 — оновлює архітектурні доки (`docs/architecture/*`) і MemPalace wing одночасно.
-- **`/vladyslav:write-user-stories`** — генерує `docs/product/user-stories.md` з фактично реалізованих фіч.
 
 ### Тестування
 
-- **`/vladyslav:write-test-docs`** — генерує `docs/testing/test-plan.md` (unit/integration/edge cases) і `docs/testing/manual-qa.md` (QA чекліст).
+- **`/vladyslav:write-docs`** (режим tests) — генерує `docs/testing/test-plan.md` і `docs/testing/manual-qa.md`.
 - **`/superpowers:test-driven-development`** — реально пише тести (test-first). Викликається автоматично всередині `add-feature` і `fix-bug`.
 - **`/vladyslav:pre-release-check`** 🧠 — фінальна верифікація перед релізом (тести, docs, rollback, translations). **iOS only:** запускає submission-phase Apple App Store review — hard gate, BLOCKER/HIGH робить весь чек FAIL. Cross-reference з `docs/product/apple-review.md` (pre-dev audit) + свіжі rejection patterns зі `swift-calories` wing. Output → `docs/release/apple-review-submission.md`.
 
@@ -93,14 +92,14 @@
 
 ### Юзер сторі
 
-- **`/vladyslav:write-user-stories`** — генерує `docs/product/user-stories.md` у форматі `As [role], I can [action], so that [benefit]` з acceptance criteria і статусами (Done / Partial / Not started).
+- **`/vladyslav:write-docs`** (режим stories) — генерує `docs/product/user-stories.md` у форматі `As [role], I can [action], so that [benefit]` з acceptance criteria і статусами (Done / Partial / Not started).
 - Джерело: реальний код + PRD + існуючі сторі. Корисно коли QA потрібен registry реалізованих фіч.
 
 ### Session Continuity
 
 - **`/vladyslav:compact-save`** 🧠 — знімок поточного стану задачі в MemPalace (`compact-save` drawer). Автоматично викликається через `PreCompact` hook перед компресією контексту — не потрібно нічого робити вручну. Зберігає: поточна задача, змінені файли, останнє рішення, наступний крок.
 
-- **`/vladyslav:save`** 🧠 — зберігає окремий knowledge record у MemPalace для поточного wing. На відміну від `compact-save`, не прив'язаний до compaction — виклич будь-коли: після ключового рішення, наприкінці сесії, коли хочеш запам'ятати preference або milestone. Типи: `decision` · `preference` · `milestone` · `problem`. Перед записом перевіряє дублікати.
+- **`/vladyslav:qsave`** 🧠 — єдиний вхід для knowledge records (замінив `save` у v5.0.0): нуль питань, типи `decision` · `preference` · `problem` · `milestone`, явний контент і wing перекривають деривацію ("qsave to ops: ...").
 
 Після компресії або на початку сесії глобальне правило **Compact-Save Continuity** (`~/.claude/CLAUDE.md`) автоматично знаходить останній compact-save для активного wing і відновлює контекст — без `/unstash`, без ручних кроків.
 
@@ -119,8 +118,7 @@ cd ~/NewProject
                                            # корисно після кількох фіч для оновлення architecture docs
 /vladyslav:add-feature                     # повний цикл першої фічі (auto mode рекомендовано)
 # ... наступні фічі через /vladyslav:add-feature ...
-/vladyslav:write-test-docs                 # test plan + QA checklist
-/vladyslav:write-project-docs              # README + deployment
+/vladyslav:write-docs                      # stories / tests / project docs (меню або all)
 /vladyslav:pre-release-check               # фінал
 ```
 
@@ -141,8 +139,7 @@ MemPalace wing створиться автоматично — після кож
 cd ~/ExistingRepo
 /vladyslav:attach-project            # Claude-структура без перезапису файлів
 /vladyslav:ingest                    # сканує код → docs/architecture/* + ключові рішення в MemPalace wing
-/vladyslav:write-user-stories        # stories з реалізованих фіч
-/vladyslav:write-project-docs        # README + deployment docs
+/vladyslav:write-docs                # stories / tests / project docs
 ```
 
 **Ефект:** кожна наступна сесія починається з `mempalace_search wing=<project>` замість сканування коду. Нові фічі (`/vladyslav:add-feature`) автоматично використовують контекст і глобальні правила.
@@ -160,8 +157,7 @@ Blast Radius Rule застосовується автоматично — якщ
 
 ```
 cd ~/Project
-/vladyslav:write-test-docs           # test plan + QA checklist
-/vladyslav:write-project-docs        # оновити README + deployment
+/vladyslav:write-docs                # test plan / README / deployment (меню)
 /vladyslav:pre-release-check         # фінальна верифікація
 ```
 
@@ -174,7 +170,7 @@ cd ~/Project
 /superpowers:using-git-worktrees     # ізольована гілка refactor/<scope>
 mempalace_search wing=<project>      # перевірити чи є попередні рішення по цьому коду
 /superpowers:brainstorming           # ЧИ потрібен рефакторинг? Що конкретно болить?
-/vladyslav:write-test-docs           # якщо тести відсутні — спочатку написати characterization tests
+/vladyslav:write-docs                # якщо тести відсутні — спочатку написати characterization tests (режим tests)
 /superpowers:test-driven-development # покриття того що буде рефакториться
 /superpowers:writing-plans           # atomic кроки, кожен залишає код working
 /superpowers:dispatching-parallel-agents  # якщо кроки незалежні
@@ -249,7 +245,7 @@ mempalace_search wing=<project>      # попередні міграції, gotc
 
 **Що завжди потребує явного виклику slash-командою** (модель не запускає сама — таке практично через структуру команд + чітко описане у `description` поле):
 
-- `write-project-docs`, `write-test-docs`, `write-user-stories` — документація
+- `write-docs` — документація (stories / tests / project)
 - `owasp-security` (standalone повний аудит — автоматичний тільки в auto-gate)
 - `pre-release-check` — фінальна верифікація
 - `ingest` — одноразова операція (або після великих рефакторів)
@@ -326,19 +322,16 @@ mempalace_search wing=<project>      # попередні міграції, gotc
 | `orchestrate` | Architect | Точка входу: класифікує запит, маршрутизує в потрібний скіл, тривіальне робить інлайн |
 | `add-feature` | Architect | Повний цикл нової фічі (manual / auto mode) |
 | `fix-bug` | Architect | Повний цикл фіксу багу |
-| `write-user-stories` | Engineer | Генерація user stories |
-| `write-test-docs` | Engineer | Test plan + QA checklist |
-| `write-project-docs` | Engineer | README + deployment + onboarding |
+| `write-docs` | Engineer | Документація з меню: user stories / test plan + QA / README + deployment (або all) |
 | `pre-release-check` | Engineer | Фінальна верифікація перед релізом |
 | `swiftui-pro` | Engineer | Ревю SwiftUI/Swift коду: deprecated API, accessibility, HIG, Swift concurrency (iOS 26 / Swift 6.2). Автоматично викликається в `add-feature` Step 6.5 для iOS проектів. |
 | `compact-save` | Engineer 🧠 | Знімок task state в MemPalace (auto перед compaction) |
-| `save` | Engineer 🧠 | Зберігає knowledge record в MemPalace (decision / preference / milestone / problem) |
 | `qsave` | Engineer 🧠 | Швидкий запис у MemPalace без питань (все з розмови) |
 | `smoke-test-skills` | Engineer | Batch-валідація всіх скілів плагіна (статичні перевірки) |
 
 **Architect** (5 скілів: `orchestrate`, `ingest`, `add-feature`, `fix-bug`, `swiftui-pro`) — інтерактивно в Opus main. Внутрішні Agent dispatches позначені `model="sonnet"` (executor) або `model="opus"` (synthesis).
 **Engineer (light) — bash-driven** (`init-project`, `attach-project`, `pre-release-check`, `smoke-test-skills`) — pre-flight Q&A в Opus, потім bash-скрипт, потім summary.
-**Engineer (light) — Opus inline** (`write-user-stories`, `write-test-docs`, `write-project-docs`, `compact-save`, `save`, `qsave`) — LLM-генерація без dispatch.
+**Engineer (light) — Opus inline** (`write-docs`, `compact-save`, `qsave`) — LLM-генерація без dispatch.
 
 ---
 
@@ -474,7 +467,7 @@ $ cd ~/python-tax && claude
 
 **Крок 3 — user stories з реалізованого.**
 ```
-> /vladyslav:write-user-stories
+> /vladyslav:write-docs
 ```
 Я читаю код + роутинг + тести, пишу `docs/product/user-stories.md` зі статусами (Done / Partial / Not started).
 
@@ -571,4 +564,4 @@ $ cd ~/python-tax && claude
 
 ---
 
-*Останнє оновлення: 2026-05-15 (v4.1.0 — новий скіл `save` для збереження knowledge records у MemPalace; 17 active skills, 15 helper scripts)*
+*Останнє оновлення: 2026-08-01 (v5.0.0 — orchestrate як точка входу; злиття write-* у write-docs і save у qsave; 12 active skills)*

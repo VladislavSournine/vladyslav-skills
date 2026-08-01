@@ -91,7 +91,7 @@ Overall: <PASS | WARN | FAIL> — <one-line reason from the model>
 
 Full report: <report_file from JSON>
 Next step:
-  - PASS or WARN (no blockers) → /vladyslav:write-project-docs
+  - PASS or WARN (no blockers) → /vladyslav:write-docs (project mode)
   - FAIL → fix blockers (listed above), then re-run /vladyslav:pre-release-check
 ```
 
