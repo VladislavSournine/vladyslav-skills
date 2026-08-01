@@ -20,7 +20,9 @@ Save a knowledge record to MemPalace for the current project wing. Unlike `compa
 
 ### Step 1: Detect wing
 
-Derive wing from working directory basename (strip leading dots → lowercase → match wings list in `~/.claude/CLAUDE.md`). If ambiguous or outside a known project, prompt the user to confirm or specify the wing.
+Derive the wing using the algorithm in `<plugin>/skills/_shared/references/mempalace-record.md` ("Wing" section) — the project directory **basename**, with whitespace/underscores/dots collapsed to single hyphens, **case preserved**. `scripts/derive-wing.sh` implements exactly this; prefer running it when a shell is available.
+
+Do **not** lowercase — wings such as `Svitlana` and `phD` carry meaningful case, and lowercasing them produces a wing that matches nothing. After deriving, reconcile against the wings list in `~/.claude/CLAUDE.md` to catch case drift. If ambiguous or outside a known project, prompt the user to confirm or specify the wing. Never guess silently.
 
 ### Step 2: Identify content and type
 
@@ -52,15 +54,7 @@ Call `mempalace_add_drawer` with:
 - `wing`: detected wing
 - `room`: classified room type (`decision` / `preference` / `milestone` / `problem`)
 - `name`: short kebab-case slug from the content (max 40 chars), e.g. `use-vitest-not-jest`
-- `content`: a plain-text record including the date:
-
-```
-[WHAT] <one sentence summary>
-[WHY] <rationale or context, if known>
-[DATE] <today's date ISO 8601>
-```
-
-Omit `[WHY]` if no rationale was provided.
+- `content`: the record shape defined in `<plugin>/skills/_shared/references/mempalace-record.md` ("Required structure") — `[WHAT]`, `[WHY]`, `[FILES]`, `[DATE]`. Omit `[WHY]` and `[FILES]` when not applicable.
 
 ### Step 5: Confirm
 
