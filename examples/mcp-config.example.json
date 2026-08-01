@@ -2,7 +2,7 @@
   "_comment": "Example MCP server configuration required by vladyslav-skills. Copy the `mcpServers.mempalace` block into your `~/.claude.json` (user scope) and adjust the interpreter + palace path to your local install. This file is reference only — Claude Code does not auto-load it. See docs/operations/dependencies.md for install/update + interpreter-pinning notes.",
   "mcpServers": {
     "mempalace": {
-      "_comment": "Long-term cross-session memory. Python package `mempalace`. Recommended install: a dedicated venv (python3.11 -m venv ~/.mempalace-venv && ~/.mempalace-venv/bin/pip install mempalace). Required by 9 skills: add-feature, fix-bug, discover, discover-apple-check, design-sync, ingest, pre-release-check, compact-save, save. IMPORTANT: set `command` to the ABSOLUTE path of the venv interpreter (not bare `python3`) so the MCP server launches against the right Python. See docs/operations/dependencies.md.",
+      "_comment": "Long-term cross-session memory. Python package `mempalace`. Recommended install: a dedicated venv (python3.11 -m venv ~/.mempalace-venv && ~/.mempalace-venv/bin/pip install mempalace). Required by 7 skills: add-feature, fix-bug, ingest, pre-release-check, compact-save, save, qsave. IMPORTANT: set `command` to the ABSOLUTE path of the venv interpreter (not bare `python3`) so the MCP server launches against the right Python. See docs/operations/dependencies.md.",
       "type": "stdio",
       "command": "/Users/<you>/.mempalace-venv/bin/python",
       "args": ["-m", "mempalace.mcp_server"],

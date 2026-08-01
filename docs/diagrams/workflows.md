@@ -12,8 +12,7 @@ From zero to first deployed feature.
 flowchart LR
     A([Start:\nnew idea]):::start
     A --> B["/init-project\nBare AI shell (minimal)\nor opt-in modules (interactive)"]
-    B --> C["/discover\nCompetitors / monetization\nvaluation / marketing"]
-    C --> D["/ingest\nDocument architecture\nseeds MemPalace"]
+    B --> D["/ingest\nDocument architecture\nseeds MemPalace"]
     D --> E["/add-feature\nDesign → contract\n→ plan → implement"]
     E --> F["/write-test-docs\nTest plan\n+ manual QA"]
     F --> G["/write-project-docs\nREADME\n+ onboarding + deploy"]
@@ -99,23 +98,3 @@ flowchart LR
     classDef done  fill:#d0f0d0,stroke:#006600,color:#003300,font-weight:bold
 ```
 
----
-
-## Design System
-
-Bootstrap or repair a consistent UI design system.
-
-```mermaid
-flowchart LR
-    A([Start:\nUI project]):::start
-    A --> B{Design system\nexists?}
-    B -- no  --> C["/design-sync\nScan codebase\ncanonize tokens\nwrite system.md"]
-    B -- yes --> D{Design drift\ndetected?}
-    D -- yes --> C
-    D -- no  --> E
-    C --> E["/design-page\nGenerate new screens\nusing canonical tokens"]
-    E --> F([Consistent UI]):::done
-
-    classDef start fill:#d0f0d0,stroke:#006600,color:#003300,font-weight:bold
-    classDef done  fill:#d0f0d0,stroke:#006600,color:#003300,font-weight:bold
-```

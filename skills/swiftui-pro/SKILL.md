@@ -23,6 +23,7 @@ Review Swift and SwiftUI code for correctness, modern API usage, and adherence t
 7. Ensure the code is able to run efficiently using `references/performance.md`.
 8. Quick validation of Swift code using `references/swift.md`.
 9. Final code hygiene check using `references/hygiene.md`.
+10. Cross-check against the Apple HIG compact checklist (layout, nav, a11y, color, components) using `references/ios-hig.md`.
 
 If doing a partial review, load only the relevant reference files.
 

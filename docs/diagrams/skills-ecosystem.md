@@ -9,18 +9,9 @@ flowchart LR
         s1[init-project]
         s2[attach-project]
         s3[ingest]
-        s4[help]
-        s1 ~~~ s2 ~~~ s3 ~~~ s4
+        s1 ~~~ s2 ~~~ s3
     end
 
-    subgraph DISCOVER [Discover and Design]
-        direction TB
-        d1[discover]
-        d2[discover-apple-check]
-        d3[design-sync]
-        d4[design-page]
-        d1 ~~~ d2 ~~~ d3 ~~~ d4
-    end
 
     subgraph BUILD [Build]
         direction TB
@@ -42,7 +33,7 @@ flowchart LR
     end
 
     classDef cluster fill:#e8eef9,stroke:#3b5998,color:#1c2e5e
-    class SETUP,DISCOVER,BUILD,SHIP cluster
+    class SETUP,BUILD,SHIP cluster
 ```
 
 ## Cluster meaning

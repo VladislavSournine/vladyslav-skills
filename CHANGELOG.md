@@ -1,5 +1,33 @@
 # Changelog
 
+## v5.0.0
+
+**BREAKING:** five unused skills removed after a usage audit. Recover any of them from git history (`git log --diff-filter=D --name-only`) if ever needed again.
+
+### Removed
+- **`discover` + `discover-apple-check`** — product-discovery research pipeline. Replacement: fill `start-project.md` sections 6–10 manually or with a one-off AI-research prompt; for iOS rejection-risk call the `apple-appstore-reviewer` skill directly.
+- **`design-sync` + `design-page`** — design-token canonization and Pencil screen generation. The Design System Discipline *rule* (global CLAUDE.md) remains in force; `templates/DesignSystem.md` and the `init-project` design-system module are kept.
+- **`help`** — static catalogue; superseded by `orchestrate` as the entry point and by README/SkillsManual as references.
+- `scripts/extract-tokens.sh` — orphaned by `design-sync` removal.
+
+### Added
+- **Thematic MemPalace wing `ops`** — cross-project operational knowledge (Docker patterns, DigitalOcean deploys, alembic pitfalls) now has a documented home; `save`/`qsave` accept an explicit wing override ("save to ops"). Convention documented in `_shared/references/mempalace-record.md`.
+- The `orchestrate` activation trigger is now installed in the user's global `~/.claude/CLAUDE.md` ("Orchestrator Entry Point").
+
+### Changed
+- Skill counts and MemPalace-dependency lists updated everywhere (README, CLAUDE.md, SkillsManual, plugin description: 7 skills require MemPalace).
+- `orchestrate` routing table: UI/visual work now routes through the Design System Discipline rule + `add-feature`/`fix-bug` instead of the removed design skills.
+
+## v4.9.0
+
+Orchestrator entry point, a security step `fix-bug` never had, and bounded self-repair on the quality gate.
+
+- **`orchestrate` (new skill)** — single entry point for code work. Classifies a raw request, announces the route in one line, delegates via the `Skill` tool. Reimplements no pipeline. Trivial work (typo, version bump, one-liner, git operation) deliberately bypasses it — wrapping a typo in a full pipeline violates the ladder rule.
+- **`fix-bug` Step 6.5 (new)** — invokes `owasp-security` on the fix diff. Previously `owasp-security` was wired only into `add-feature` Auto mode, so bug fixes shipped with no security review at all.
+- **Bounded self-repair (`add-feature/references/auto-mode.md`)** — *quality* failures (tests, hygiene, HIGH review finding, security finding) now get up to 2 automatic repair attempts before escalating. *Scope* failures (contract changed, read-only file touched, >2 files outside plan, `SCOPE EXPANSION REQUIRED`) still escalate immediately and are never self-repaired — Scope Sentinel stays absolute. A new "Forbidden repairs" section bans the predictable cheats: deleting/skipping tests, weakening assertions, narrowing the security scope, or adding suppressions.
+- **`add-feature` Step 0.5** — accepts a Manual/Auto mode supplied by `orchestrate` instead of asking a second time.
+- **`save` wing derivation fixed** — it lowercased the derived wing, contradicting both `scripts/derive-wing.sh` and `_shared/references/mempalace-record.md` ("case preserved"). Wings such as `Svitlana` and `phD` resolved to names that match nothing. `save` now defers to the shared reference for both the wing algorithm and the record shape, which is what kept `qsave` correct.
+
 ## v4.8.0
 
 Optional CodeGraph integration — faster code navigation for the scanning skills, zero new required dependency.

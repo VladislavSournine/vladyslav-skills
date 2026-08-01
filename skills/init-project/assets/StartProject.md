@@ -2,7 +2,7 @@
 
 > Заповни цей файл **ПЕРШИМ**, до будь-якого коду. Він — точка вирівнювання між ідеєю, дизайном, MVP і бізнес-моделлю.
 >
-> Після того як заповниш вручну те що знаєш — запусти `/vladyslav:discover` щоб AI-research дозаповнив інші секції (конкуренти, монетизація, оцінка ідеї, маркетинг, Apple-check).
+> Секції 6–10 (конкуренти, монетизація, оцінка, маркетинг) заповнюй вручну або разовим AI-research промптом у сесії (WebSearch по конкурентах, обговорення монетизації). Для iOS rejection-risk — скіл `apple-appstore-reviewer`.
 >
 > Не заморочуйся з формулюваннями на першому проході — пиши як думаєш, потім відшліфуєш через `/superpowers:brainstorming`.
 
@@ -44,7 +44,7 @@
 
 ## 6. Конкуренти
 
-> Заповнюй вручну або запусти `/vladyslav:discover:competitors`.
+> Заповнюй вручну (AI-research разовим промптом: WebSearch по конкурентах).
 
 | Назва | Модель | Сильне | Слабке | Наш edge |
 |---|---|---|---|---|
@@ -61,7 +61,7 @@
 
 ## 8. Business model
 
-> Заповнюй вручну або запусти `/vladyslav:discover:monetization`.
+> Заповнюй вручну (обговори цінову гіпотезу в сесії).
 
 - **Як заробляємо:** <subscription / one-time / freemium / ads / B2B licensing / маркетплейс>
 - **Цінова гіпотеза:** <$X/міс — і чому саме стільки, а не $X/2 чи $X*2>
@@ -71,7 +71,7 @@
 
 ## 9. Валідація ідеї
 
-> Заповнюй вручну або запусти `/vladyslav:discover:valuation`.
+> Заповнюй вручну (desk research + customer development).
 
 - **Desk research:** <чи підтверджують TAM/SAM/SOM цифри з відкритих джерел>
 - **Customer development:** <мінімум 5 інтерв'ю з цільовою аудиторією **до** коду — що вони сказали?>
@@ -80,7 +80,7 @@
 
 ## 10. Маркетинг (гіпотеза)
 
-> Заповнюй вручну або запусти `/vladyslav:discover:marketing`.
+> Заповнюй вручну (канали + план перших 100 юзерів).
 
 - **Канали:** <organic — SEO, Reddit, ProductHunt / paid / партнерства / cold outreach>
 - **Перший 100 юзерів:** <конкретний план до пуску, не "recerve to the masses">
@@ -89,7 +89,7 @@
 
 ## 11. Apple-check (тільки для iOS)
 
-> Заповнюй вручну або запусти `/vladyslav:discover:apple-check`.
+> Заповнюй вручну — для глибшої перевірки викликай скіл `apple-appstore-reviewer` напряму.
 
 Перевірка на відомі Apple-rejection patterns **до** початку розробки (щоб не переробляти):
 
@@ -120,7 +120,7 @@ mempalace_search wing=swift-calories "apple review"
 
 Коли цей файл заповнений хоча б на 60%:
 
-1. **`/vladyslav:discover`** — AI-research дозаповнить секції 6, 8, 9, 10, 11 (можна викликати суб-скіли окремо: `:competitors`, `:monetization`, `:valuation`, `:marketing`, `:apple-check`)
+1. **Секції 6, 8, 9, 10, 11** — дозаповни вручну або разовим AI-research промптом у сесії
 2. **`/superpowers:brainstorming`** — trim MVP до реально-реалістичного scope
 3. **`/vladyslav:add-feature`** — імплементація першої фічі за Contract-First flow
 

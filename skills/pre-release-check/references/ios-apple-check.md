@@ -10,9 +10,9 @@ For non-iOS platforms (`web`, `backend`, `plugin`, `other`), skip this entire fi
 
 **Skip this check entirely if `platform` is NOT `ios`.**
 
-**Why this check exists:** `discover-apple-check` audits the IDEA before coding. This step audits the SHIPPED ARTIFACT — screenshots, metadata, final UI strings, privacy manifest, IAP wiring — against the same guidelines, plus anything new Apple has flagged in between.
+**Why this check exists:** a pre-development Apple review (section 11 of `start-project.md`) audits the IDEA before coding. This step audits the SHIPPED ARTIFACT — screenshots, metadata, final UI strings, privacy manifest, IAP wiring — against the same guidelines, plus anything new Apple has flagged in between.
 
-1. **Read prior audit.** Open `docs/product/apple-review.md` (written by `discover-apple-check`). If missing, warn: "No pre-development Apple review found. Submission-phase check will only catch issues visible in the shipped artifact — earlier architectural risks may already be baked in." Continue anyway.
+1. **Read prior audit.** Open `docs/product/apple-review.md` (a pre-development Apple review, if one was done). If missing, warn: "No pre-development Apple review found. Submission-phase check will only catch issues visible in the shipped artifact — earlier architectural risks may already be baked in." Continue anyway.
 
 2. **Refresh rejection patterns.** Run cross-wing MemPalace searches to pick up anything new since the pre-dev check:
    ```

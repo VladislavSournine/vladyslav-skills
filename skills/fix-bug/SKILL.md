@@ -99,6 +99,17 @@ Invoke `superpowers:requesting-code-review` to verify:
 
 If feedback is received, invoke `superpowers:receiving-code-review` to process it with technical rigor — verify before implementing suggestions.
 
+### Step 6.5: Security check
+
+Invoke the security checker on the fix diff. A bug fix touches the same attack surface a feature does, and skipping this is how a regression fix ships a vulnerability.
+
+- Preferred: `Skill` tool → `owasp-security`, scoped to the fix diff (`git diff` against the branch point).
+- Fallback: `Agent` tool → `subagent_type: "pr-review-toolkit:silent-failure-hunter"`, `model: "sonnet"`.
+
+**Blocker if any of these appear:** injection risk (SQL, command, XSS), secrets in the diff, missing authZ on a mutation, or a silent catch block with no logging.
+
+On a blocker: fix the cause and re-run this step. Do **not** narrow the scope passed to the checker to make a finding disappear — see "Forbidden repairs" in `<plugin>/skills/add-feature/references/auto-mode.md`.
+
 ### Step 7: Finish the branch
 
 Invoke `superpowers:finishing-a-development-branch` — it will guide merge, PR, or cleanup.
