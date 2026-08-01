@@ -174,7 +174,7 @@ Then append a **context-aware `Next:` line** — pick the first that applies:
 
 | Condition | Next line |
 |---|---|
-| No docs module was ticked | `Next: docs народяться за потреби — discover / write-user-stories / write-test-docs.` |
+| No docs module was ticked | `Next: docs народяться за потреби — write-docs.` |
 | Any backend-infra module was ticked | `Next: /vladyslav:add-feature щоб почати фічу.` |
 | `minimal` mode | `Next: повернись у interactive за потреби, або одразу /vladyslav:add-feature.` |
 

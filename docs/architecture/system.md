@@ -21,7 +21,7 @@ The plugin uses three Engineer/Architect patterns. Picking the right one for a n
 ### Engineer (light) — Opus inline
 - **Where it runs:** Pre-flight Q&A + LLM-driven generation, all in Opus main, with no Sonnet subagent dispatch.
 - **When to use:** The skill needs LLM for content generation (translating code/PRD into product-language stories, test plans, READMEs) but the generation is one synthesis pass over known inputs to known output paths — no orchestration, no allowlist enforcement, no YAML return contract.
-- **Examples:** `write-user-stories`, `write-test-docs`, `write-project-docs`, `compact-save`, `help`, `swiftui-pro`.
+- **Examples:** `write-docs`, `compact-save`, `qsave`, `swiftui-pro`.
 
 ### Heavy Engineer (deprecated)
 Pre-flight Q&A in Opus main + Sonnet subagent dispatch for the body + YAML return contract + allowlist enforcement.
@@ -65,7 +65,7 @@ Three cross-skill references, all with active consumers. (The three Heavy-Engine
 |---|---|---|
 | `mempalace-record.md` | All 8 MemPalace-using skills | Required record shape: `[WHAT] [WHY] [FILES] [DATE]` plus room-type rules and wing canonicalisation. |
 | `verify-pwd.md` | 6 Architect skills (`add-feature`, `fix-bug`, `discover`, `design-sync`, `design-page`, `ingest`) | Step 0.1 contract: `CLAUDE.md` presence check + canonical wing derivation. Skills reference this instead of inlining the 11-22-line block. |
-| `orchestration-conventions.md` | 6 dispatching skills (`orchestrate`, `add-feature`, `fix-bug`, `ingest`, `write-project-docs`, `write-test-docs`) | Opus 4.8 dispatch contract: `Skill` vs `Agent` vs `Workflow`, model tiers (`opus`/`sonnet`/`haiku`), and what is / is not safe to parallelize. Skills point here instead of repeating it inline. |
+| `orchestration-conventions.md` | 5 dispatching skills (`orchestrate`, `add-feature`, `fix-bug`, `ingest`, `write-docs`) | Opus 4.8 dispatch contract: `Skill` vs `Agent` vs `Workflow`, model tiers (`opus`/`sonnet`/`haiku`), and what is / is not safe to parallelize. Skills point here instead of repeating it inline. |
 
 ## Helper Scripts (`scripts/`)
 

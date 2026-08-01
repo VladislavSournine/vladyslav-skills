@@ -279,8 +279,7 @@ Do NOT add translations — wait for pre-release-check phase.
 ```
 
 Next steps:
-- `/vladyslav:write-test-docs` — generate test plan + QA checklist
-- `/vladyslav:write-user-stories` — update user-stories registry
+- `/vladyslav:write-docs` — generate test plan + QA checklist (tests mode) or update user stories (stories mode)
 - `/vladyslav:pre-release-check` — pre-release verification
 
 ## Auto-mode reference

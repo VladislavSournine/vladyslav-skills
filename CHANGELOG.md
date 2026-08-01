@@ -8,6 +8,8 @@
 - **`discover` + `discover-apple-check`** — product-discovery research pipeline. Replacement: fill `start-project.md` sections 6–10 manually or with a one-off AI-research prompt; for iOS rejection-risk call the `apple-appstore-reviewer` skill directly.
 - **`design-sync` + `design-page`** — design-token canonization and Pencil screen generation. The Design System Discipline *rule* (global CLAUDE.md) remains in force; `templates/DesignSystem.md` and the `init-project` design-system module are kept.
 - **`help`** — static catalogue; superseded by `orchestrate` as the entry point and by README/SkillsManual as references.
+- **`save`** — merged into `qsave` (transcript audit: 13 real invocations of qsave vs 0 of save). `qsave` gained the `preference` room type and an explicit-content mode ("qsave: <content>"); explicit wing override ("qsave to ops") already existed.
+- **`write-user-stories` + `write-test-docs` + `write-project-docs`** — merged into one menu-driven **`write-docs`** (modes: stories / tests / project / all). Same outputs, same structures, same parallel-sonnet fan-out; one command instead of three (all three had 0 real invocations).
 - `scripts/extract-tokens.sh` — orphaned by `design-sync` removal.
 
 ### Added

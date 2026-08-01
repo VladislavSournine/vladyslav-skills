@@ -81,5 +81,5 @@ Version is defined in `.claude-plugin/plugin.json`. Bump on every meaningful cha
 ## Dependencies
 
 - [Superpowers plugin](https://github.com/obra/superpowers) — all 13 non-meta superpowers skills are referenced
-- **MemPalace MCP server** — required by 7 skills (`add-feature`, `fix-bug`, `ingest`, `pre-release-check`, `compact-save`, `save`, `qsave`). When editing or adding skills that call `mempalace_*` tools, declare the dependency in the skill's SKILL.md and update the README "Skills that require MemPalace" list.
+- **MemPalace MCP server** — required by 6 skills (`add-feature`, `fix-bug`, `ingest`, `pre-release-check`, `compact-save`, `qsave`). When editing or adding skills that call `mempalace_*` tools, declare the dependency in the skill's SKILL.md and update the README "Skills that require MemPalace" list.
 - **CodeGraph MCP server (optional)** — local code-index accelerator used by `ingest`, `add-feature`, `fix-bug` when present; skills fall back to grep/Glob/LSP without it. Never a hard dependency — do not add it to any "required" list. Detection + usage contract: `skills/_shared/references/codegraph.md`; setup: README "Optional: CodeGraph code index".

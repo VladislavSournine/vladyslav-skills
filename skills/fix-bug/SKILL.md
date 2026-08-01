@@ -159,6 +159,6 @@ Updated:
 Do NOT add translations — wait for pre-release-check phase.
 
 Next steps:
-- /vladyslav:write-test-docs — update test documentation for the fix
+- /vladyslav:write-docs — update test documentation for the fix (tests mode)
 - /vladyslav:pre-release-check — run pre-release verification before shipping
 ```

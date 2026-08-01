@@ -14,8 +14,8 @@ flowchart LR
     A --> B["/init-project\nBare AI shell (minimal)\nor opt-in modules (interactive)"]
     B --> D["/ingest\nDocument architecture\nseeds MemPalace"]
     D --> E["/add-feature\nDesign → contract\n→ plan → implement"]
-    E --> F["/write-test-docs\nTest plan\n+ manual QA"]
-    F --> G["/write-project-docs\nREADME\n+ onboarding + deploy"]
+    E --> F["/write-docs\nstories / tests\n/ project docs"]
+    F --> G["  "]
     G --> H["/pre-release-check\nFinal gate\nbefore production"]
     H --> I([Shipped 🚀]):::done
 
@@ -50,9 +50,8 @@ Final docs and verification before shipping.
 ```mermaid
 flowchart LR
     A([Start:\nfeatures done]):::start
-    A --> B["/write-user-stories\nRegistry of what's\nactually built + status"]
-    B --> C["/write-test-docs\nTest plan\n+ manual QA checklist"]
-    C --> D["/write-project-docs\nREADME + onboarding\n+ deployment guide"]
+    A --> B["/write-docs (all)\nstories → tests\n→ project docs"]
+    B --> D["  "]
     D --> E["/pre-release-check\nTasks · tests · config\ndocs · changelog\n+ translations now!"]
     E --> F([Shipped 🚀]):::done
 
@@ -70,7 +69,7 @@ Reproduce → fix root cause → verify → ship.
 flowchart LR
     A([Start:\nbug reported]):::start
     A --> B["/fix-bug\nReproduce → failing test\n→ fix root cause\n→ code review → merge"]
-    B --> C["/write-test-docs\nUpdate test plan\nfor the fixed scenario"]
+    B --> C["/write-docs (tests)\nUpdate test plan\nfor the fixed scenario"]
     C --> D["/pre-release-check\nVerify nothing regressed\nbefore hotfix deploy"]
     D --> E([Fixed 🐛→✅]):::done
 

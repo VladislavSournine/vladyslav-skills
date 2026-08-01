@@ -23,13 +23,11 @@ flowchart LR
 
     subgraph SHIP [Docs Ship Memory]
         direction TB
-        sh1[write-project-docs]
-        sh2[write-user-stories]
-        sh3[write-test-docs]
+        sh1[write-docs]
         sh4[pre-release-check]
         sh5[compact-save]
-        sh6[save]
-        sh1 ~~~ sh2 ~~~ sh3 ~~~ sh4 ~~~ sh5 ~~~ sh6
+        sh6[qsave]
+        sh1 ~~~ sh4 ~~~ sh5 ~~~ sh6
     end
 
     classDef cluster fill:#e8eef9,stroke:#3b5998,color:#1c2e5e
