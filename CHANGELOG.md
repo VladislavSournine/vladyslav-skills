@@ -1,5 +1,11 @@
 # Changelog
 
+## v5.1.0
+
+### Added
+- **`memory-lint` (new skill)** — MemPalace health check, modeled on the llm-wiki lint pass. Five read-only checks: wing drift vs index, split-brain clusters (the `artur` family problem), undocumented rooms (`decisions` typo, 15k `emotional`), sampled stale-path validation, index freshness. Report-only: never mutates the palace. Outputs: newest-first log `~/.claude/memory-lint.md` + generated wing index `~/.claude/references/mempalace-wings.md`.
+- The generated wing index replaces the hand-maintained wings list (deleted from global CLAUDE.md in Phase D): `qsave` and `mempalace-record.md` now reconcile against it, and skip reconciliation gracefully when the file is absent.
+
 ## v5.0.0
 
 **BREAKING:** five unused skills removed after a usage audit. Recover any of them from git history (`git log --diff-filter=D --name-only`) if ever needed again.

@@ -19,7 +19,7 @@ claude
 
 - [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview)
 - [Superpowers plugin](https://github.com/obra/superpowers) — used by `add-feature`, `fix-bug`, `ingest`, `pre-release-check`, `write-docs`
-- **MemPalace MCP server** (required for 6 skills marked 🧠 below) — long-term cross-session memory. Configure as an MCP server in your Claude Code setup; without it, the skills below will fail when trying to read/write memory. See [`examples/mcp-config.example.json`](examples/mcp-config.example.json) for a copy-paste config block, and [`docs/operations/dependencies.md`](docs/operations/dependencies.md) for install / update / interpreter-pinning steps.
+- **MemPalace MCP server** (required for 7 skills marked 🧠 below) — long-term cross-session memory. Configure as an MCP server in your Claude Code setup; without it, the skills below will fail when trying to read/write memory. See [`examples/mcp-config.example.json`](examples/mcp-config.example.json) for a copy-paste config block, and [`docs/operations/dependencies.md`](docs/operations/dependencies.md) for install / update / interpreter-pinning steps.
 - **Graphify** (optional, not integrated) — code knowledge-graph CLI you can run ad-hoc. See [`docs/operations/dependencies.md`](docs/operations/dependencies.md).
 
 > **Optional global instructions:** [`examples/CLAUDE.example.md`](examples/CLAUDE.example.md) is a sanitized, shareable `~/.claude/CLAUDE.md` that pairs with this plugin (LSP-over-Grep, Minimal Change + "the ladder", Contract-First, Design System Discipline, Code Review, MemPalace usage). Copy the parts you want.
@@ -27,7 +27,7 @@ claude
 ### Skills that require MemPalace 🧠
 
 <!-- mempalace-skills:start -->
-`add-feature`, `fix-bug`, `ingest`, `pre-release-check`, `compact-save`, `qsave`
+`add-feature`, `fix-bug`, `ingest`, `pre-release-check`, `compact-save`, `qsave`, `memory-lint`
 <!-- mempalace-skills:end -->
 
 The other skills (`orchestrate`, `init-project`, `attach-project`, `write-*`, `swiftui-pro`, `smoke-test-skills`) work without MemPalace.
@@ -54,7 +54,7 @@ Run any skill from a single Opus session. No manual `/model` switching required.
 |-----------|---------------|
 | **Architect** (5 skills) | Opus main session — interactive design + synthesis. Internal `Agent(...)` dispatches annotated explicitly with `model="sonnet"` (executor work) or `model="opus"` (synthesis/research). |
 | **Engineer (light) — bash-driven** (`init-project`, `attach-project`, `pre-release-check`) | Pre-flight Q&A in Opus main → a single deterministic bash helper does the work (~1 second) → summary rendered. |
-| **Engineer (light) — Opus inline** (`write-docs`, `compact-save`, `qsave`) | Pre-flight Q&A + LLM-driven generation, all in Opus main, no Sonnet subagent dispatch. |
+| **Engineer (light) — Opus inline** (`write-docs`, `compact-save`, `qsave`, `memory-lint`) | Pre-flight Q&A + LLM-driven generation, all in Opus main, no Sonnet subagent dispatch. |
 
 > **Heavy Engineer (deprecated):** v2.x wrapped Engineer skills in a Sonnet subagent dispatch with a YAML return contract. As of v3.1.0 no skill uses this pattern — the migrated skills run as Light Engineers. v4.6.0 removed the contract references (`subagent-preamble.md`, `yaml-return.md`, `present-summary.md`, `parse-yaml-return.sh`); recover them from git history if the pattern ever returns. See `docs/architecture/system.md`.
 
@@ -88,6 +88,7 @@ Run any skill from a single Opus session. No manual `/model` switching required.
 | `/vladyslav:write-docs` | Generate documentation — user stories, test plan + QA, or README/onboarding/deployment (menu-driven) |
 | `/vladyslav:compact-save` | Snapshot task state to MemPalace (auto before compact) |
 | `/vladyslav:qsave` | Save a knowledge record to MemPalace — zero questions by default; content and wing can be given explicitly |
+| `/vladyslav:memory-lint` | Health-check MemPalace: wing drift, split-brain, undocumented rooms, stale paths. Report-only; regenerates the wing index |
 
 ## Workflows
 
