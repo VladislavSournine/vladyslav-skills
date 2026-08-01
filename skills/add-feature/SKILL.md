@@ -28,7 +28,9 @@ Ask the user: **"Manual mode or Auto mode?"**
 - **Manual** (default, safest) — the historic flow: stop after each phase and tell the user to run `/superpowers:<name>` in their terminal. Use when the feature is unusual, high-risk, or you want tight control.
 - **Auto** — after approving the contract and the plan, I run execution, code review, security check, tests, commits, docs update, and merge-to-dev **without further stops**, except when a guard rail triggers. Use for routine features where the contract is clear.
 
-Record the chosen mode for the rest of the flow. Do **not** default to Auto silently — always ask.
+Record the chosen mode for the rest of the flow.
+
+Do **not** default to Auto silently. The mode must come from an explicit user answer — but that answer may have been given one level up: if `vladyslav:orchestrate` routed here and already asked, it passes the mode down, and that satisfies this requirement. Asking again is a bug, not extra safety. Ask here only when no mode was supplied.
 
 **Auto-mode guard rails (automatic STOP + ask):**
 - More than **2 files touched outside the approved plan** (new files not in the plan)
