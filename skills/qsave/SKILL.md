@@ -22,7 +22,7 @@ This exists because the `SessionEnd` auto-miner only fires when a session ends, 
 
 ### Step 1: Detect wing
 
-Derive the wing from the working-directory **basename** (preserve case; replace whitespace/underscores/dots with single hyphens; do NOT lowercase, do NOT add a stack prefix), then confirm it against the wings list in `~/.claude/CLAUDE.md`. This matches `scripts/derive-wing.sh` and the `SessionEnd` miner. If the basename is not in the wings list and the directory is clearly outside a known project, ask the user to confirm the wing in one line — otherwise proceed silently.
+Derive the wing from the working-directory **basename** (preserve case; replace whitespace/underscores/dots with single hyphens; do NOT lowercase, do NOT add a stack prefix), then confirm it against the wings list in `~/.claude/CLAUDE.md`. This matches `scripts/derive-wing.sh` and the `SessionEnd` miner. If the basename is not in the wings list and the directory is clearly outside a known project, ask the user to confirm the wing in one line — otherwise proceed silently. An explicit wing named by the user (e.g. "qsave to ops") overrides derivation — `ops` is the thematic wing for cross-project server/deploy knowledge.
 
 ### Step 2: Extract content from the conversation — no questions
 

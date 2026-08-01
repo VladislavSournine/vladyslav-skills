@@ -16,7 +16,7 @@ flowchart LR
     D -- minimal --> F[Render summary]
     D -- interactive --> E["Opt-in menus<br/>docs · backend-infra · agents<br/>run selected scripts/modules/*.sh"]
     E --> F
-    F --> G([Done → /vladyslav:discover]):::done
+    F --> G([Done → заповни start-project.md]):::done
 
     classDef start fill:#d0f0d0,stroke:#006600,color:#003300,font-weight:bold
     classDef done  fill:#d0f0d0,stroke:#006600,color:#003300,font-weight:bold
@@ -53,63 +53,6 @@ flowchart LR
     F --> G[Extract 10-20<br/>MemPalace records]
     G --> H[Update CLAUDE.md<br/>Memory pointer]
     H --> I([Done → /add-feature]):::done
-
-    classDef start fill:#d0f0d0,stroke:#006600,color:#003300,font-weight:bold
-    classDef done  fill:#d0f0d0,stroke:#006600,color:#003300,font-weight:bold
-```
-
----
-
-## Discover and Design Skills
-
-### discover — AI research for competitors, monetization, valuation, marketing
-
-```mermaid
-flowchart LR
-    A([/discover]):::start --> B[Read start-project.md\nsections 1-5 required]
-    B --> C[MemPalace search\nprior research]
-    C --> D[Ask: which sections\nto fill?]
-    D --> E[Parallel research\ncompetitors · monetization\nvaluation · marketing]
-    E --> F{iOS?}
-    F -- yes --> G["/discover-apple-check\nApp Store feasibility"]
-    F -- no  --> H[Write start-project.md\nsections 6–10]
-    G --> H
-    H --> I[MemPalace records]
-    I --> J([Done]):::done
-
-    classDef start fill:#d0f0d0,stroke:#006600,color:#003300,font-weight:bold
-    classDef done  fill:#d0f0d0,stroke:#006600,color:#003300,font-weight:bold
-```
-
----
-
-### design-sync — Canonize design tokens from existing codebase
-
-```mermaid
-flowchart LR
-    A([/design-sync]):::start --> B[Verify UI project\nSwift / Flutter\nAndroid / Web]
-    B --> C[Read existing\ndocs/design/system.md]
-    C --> D[Scan codebase\ncolors · typography\nicons · spacing]
-    D --> E[Detect drift\nduplicates / inconsistencies]
-    E --> F[Present to user\ncanonize tokens]
-    F --> G[Write\ndocs/design/system.md]
-    G --> H[MemPalace\ndesign decisions]
-    H --> I([Done]):::done
-
-    classDef start fill:#d0f0d0,stroke:#006600,color:#003300,font-weight:bold
-    classDef done  fill:#d0f0d0,stroke:#006600,color:#003300,font-weight:bold
-```
-
----
-
-### design-page — Generate UI screen from design system
-
-```mermaid
-flowchart LR
-    A([/design-page]):::start --> B[Read docs/design/system.md\n+ screen requirements]
-    B --> C[Generate screen code\nusing design tokens only\nno raw hex / hardcoded values]
-    C --> D[Write files + commit]
-    D --> E([Done]):::done
 
     classDef start fill:#d0f0d0,stroke:#006600,color:#003300,font-weight:bold
     classDef done  fill:#d0f0d0,stroke:#006600,color:#003300,font-weight:bold
@@ -249,7 +192,7 @@ flowchart LR
     C --> D[Parse JSON output]
     D --> E["⚠️ Translations reminder<br/>— add them NOW"]
     E --> F{iOS?}
-    F -- yes --> G["/discover-apple-check<br/>App Store submission review"]
+    F -- yes --> G["iOS Apple submission check<br/>references/ios-apple-check.md"]
     F -- no  --> H[Render PASS/FAIL/WARN<br/>per check]
     G --> H
     H --> I([Done]):::done

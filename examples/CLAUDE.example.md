@@ -144,7 +144,7 @@ Before ANY visual or UI task — new screen, new component, updating colors/typo
 Do not silently add tokens. Do not silently deviate. Drift is the enemy.
 
 **Step 5 — If no design system exists** (`docs/design/system.md` missing AND asset catalog empty), tell the user:
-> "No design system found. Recommended: run `/vladyslav:design-sync` first to bootstrap one from existing code (if any) or from the template. Alternative: proceed with ad-hoc design this time, then run `design-sync` after to canonize what got created — not recommended because it requires cleanup."
+> "No design system found. Recommended: bootstrap `docs/design/system.md` first — scan the existing code for de-facto tokens (colors, typography, spacing) and canonize them, or start from a template. Alternative: proceed with ad-hoc design this time and canonize afterwards — not recommended because it requires cleanup."
 
 Wait for their choice. Do not proceed with ad-hoc design without explicit permission.
 

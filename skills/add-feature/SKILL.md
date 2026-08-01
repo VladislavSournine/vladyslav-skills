@@ -28,13 +28,15 @@ Ask the user: **"Manual mode or Auto mode?"**
 - **Manual** (default, safest) — the historic flow: stop after each phase and tell the user to run `/superpowers:<name>` in their terminal. Use when the feature is unusual, high-risk, or you want tight control.
 - **Auto** — after approving the contract and the plan, I run execution, code review, security check, tests, commits, docs update, and merge-to-dev **without further stops**, except when a guard rail triggers. Use for routine features where the contract is clear.
 
-Record the chosen mode for the rest of the flow. Do **not** default to Auto silently — always ask.
+Record the chosen mode for the rest of the flow.
+
+Do **not** default to Auto silently. The mode must come from an explicit user answer — but that answer may have been given one level up: if `vladyslav:orchestrate` routed here and already asked, it passes the mode down, and that satisfies this requirement. Asking again is a bug, not extra safety. Ask here only when no mode was supplied.
 
 **Auto-mode guard rails (automatic STOP + ask):**
 - More than **2 files touched outside the approved plan** (new files not in the plan)
 - **Any existing file refactored outside the plan** (refactor of a file that was "read-only reference" → STOP, regardless of size)
 - **Contract or spec changed during execution** (the contract file from Step 4.5 has been modified)
-- **Pre-commit auto-gate failure** (see Steps 6/6.5) — quality gate (tests, diff hygiene, secrets, scope via `scripts/quality-gate.sh`), code review, or security check reports blocker
+- **Pre-commit auto-gate failure** (see Steps 6/6.5) — *quality* failures (tests, hygiene, code review, security) get up to **2 automatic repair attempts** first; *scope* failures (contract changed, read-only file touched, >2 files outside plan) escalate immediately. Escalation happens only after the repair budget is spent
 
 Any guard rail → stop, report the situation to the user, ask what to do. Do NOT attempt to work around a guard rail silently.
 

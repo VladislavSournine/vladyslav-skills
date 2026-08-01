@@ -12,13 +12,19 @@
 
 ### Скіли що вимагають MemPalace 🧠
 
-`add-feature` · `fix-bug` · `discover` · `discover-apple-check` · `design-sync` · `ingest` · `pre-release-check` · `compact-save` · `save`
+`add-feature` · `fix-bug` · `ingest` · `pre-release-check` · `compact-save` · `save` · `qsave`
 
-Інші скіли (`init-project`, `attach-project`, `write-user-stories`, `write-test-docs`, `write-project-docs`, `help`, `swiftui-pro`, `design-page`) працюють без MemPalace.
+Інші скіли (`orchestrate`, `init-project`, `attach-project`, `write-user-stories`, `write-test-docs`, `write-project-docs`, `swiftui-pro`, `smoke-test-skills`) працюють без MemPalace.
 
 ---
 
 ## За завданням
+
+### Точка входу (якщо не знаєш, який скіл потрібен)
+
+- **`/vladyslav:orchestrate`** — класифікує запит і сам маршрутизує в потрібний скіл: баг → `fix-bug`, нова поведінка → `add-feature`, проект без `docs/architecture/` → `ingest`, реліз → `pre-release-check`. Маршрут озвучується одним рядком перед запуском — можна перебити.
+- Питання про автономію (Manual/Auto) задається **один раз** і передається вниз у `add-feature` — повторно там не питається.
+- **Тривіальне не маршрутизується**: одруківка, бамп версії, однорядкова правка, git-операція робляться інлайн без скіла. Обгортати одруківку в повний пайплайн — порушення «драбини».
 
 ### Старт проекту з нуля
 
@@ -46,52 +52,19 @@
 
 ### Дизайн-система (щоб новий екран не виглядав як чужий проект)
 
-Правильний порядок: **design-sync → design-page → add-feature**
-
-- **`/vladyslav:design-sync`** 🧠 — сканує існуючий UI-код, витягує канонічні токени (кольори, typography, іконки, spacing, компоненти), виявляє drift, канонізує через питання до тебе, пише `docs/design/system.md` + MemPalace decision records. Для iOS проектів автоматично запускає `apple-hig-expert` аудит і додає HIG-порушення в §8 drift log. Запускай коли:
-  - Перший раз помітив що новий екран не схожий на старий
-  - Після `init-project` коли вже є 2-3 екрани
-  - Перед major design refresh (канонізувати що є → планувати що змінюємо)
-  - Періодично на активних проектах щоб ловити дрейф
-
-- **`/vladyslav:design-page`** — після того як `docs/design/system.md` затверджений, проектує **всі екрани в Pencil паралельно** (окремий субагент на кожен екран). Full-auto: зупиняється лише якщо потрібен новий токен або помилка Pencil. Запускай коли:
-  - Дизайн-напрямок підтверджений (system.md написаний)
-  - Маєш список екранів для проектування
-  - Хочеш уникнути переповнення контексту від проектування всіх екранів в одній сесії
-
-  **Як працює паралелізм:**
-  1. Оркестратор (Opus) попередньо резервує canvas-координати для кожного екрану
-  2. Синхронізує Pencil variables з `docs/design/system.md §1` токенами (один раз)
-  3. Диспатчить паралельні субагенти (один на екран) — кожен малює у своїй зарезервованій зоні
-  4. Кожен субагент пише `docs/design/pages/<screen-name>.md` з рішеннями
-  5. Агрегує результати, виводить звіт
-
-  **Full-auto межа:** єдині тверді стопи — відсутній токен (продуктове рішення) або Pencil API error.
-
-- **`apple-hig-expert`** (з `c-level-skills@claude-code-skills`, вже підключений) — iOS HIG аудит: Liquid Glass (2026), Tab Bar nav, 44pt targets, Dynamic Type, Dark Mode, VoiceOver. Використовується автоматично в `design-sync` і в кожному субагенті `design-page`. Можна викликати окремо для аудиту конкретного екрану.
+> Скіли `design-sync` / `design-page` прибрано у v5.0.0 (не використовувались). Дисципліна лишається правилом, не скілом:
 
 - **Глобальне правило "Design System Discipline"** (в `~/.claude/CLAUDE.md`) — перед будь-якою UI-задачею я зобов'язаний:
   1. Прочитати `docs/design/system.md` як контракт
   2. Просканувати asset catalog за існуючими токенами
   3. **НЕ винаходити** нові кольори / іконки / шрифти / padding — тільки reuse
   4. Якщо потрібен новий токен — СТОП, питаю дозволу, реєструю в `docs/design/system.md`
-  5. Якщо дизайн-системи немає — питаю чи запускати `design-sync` чи діяти ad-hoc (не рекомендовано)
-
-- **Template:** порожній канон живе в `~/.vladyslav-skills/templates/DesignSystem.md` — `init-project` пише його автоматично для UI-проектів (swift/flutter/kotlin/web), скіпає для backend-only.
-
-- **Page decisions:** `docs/design/pages/<screen>.md` — рішення кожного субагента для конкретного екрану (відступи від master, вжиті компоненти, знайдені issues). Інспіровано ui-ux-pro-max-skill MASTER + per-page overrides патерном.
+- **Template:** порожній канон живе в `templates/DesignSystem.md` — `init-project` пише його автоматично для UI-проектів (swift/flutter/kotlin/web), скіпає для backend-only.
+- **`apple-hig-expert`** (з `c-level-skills@claude-code-skills`) — iOS HIG аудит, викликається окремо за потреби.
 
 ### Product Discovery (перед кодом)
 
-- **`/vladyslav:discover`** 🧠 — монстр-скіл повного циклу discovery. Питає scope (`All` / `Custom` — вибрати конкретні секції / `Skip done` — авто-детект уже заповнених). Внутрішньо послідовно проходить:
-  - **Section 6 — Competitive landscape** (`c-level-skills:competitive-intel`) → `docs/product/competitors.md`.
-  - **Section 8 — Monetization** (`cpo-advisor` + `cfo-advisor`) → start-project.md §8.
-  - **Section 9 — Valuation / PMF** (PMF scorer + `ceo-advisor`) → green / yellow / red verdict → §9.
-  - **Section 10 — Marketing** (`cmo-advisor`) → channel hypothesis, first-100-users, retention hook → §10.
-  - **Section 11 — Apple-check** (iOS only, авто-детект через `swift/` чи CLAUDE.md) → виноситься в окремий скіл `discover-apple-check`.
-  - В кінці пише `docs/product/discovery-summary.md`.
-- **`/vladyslav:discover-apple-check`** 🧠 — iOS only — підтягує рішення зі swift-calories wing, викликає `apple-appstore-reviewer`, заповнює секцію 11 (rejection-risk checklist). Можна запускати окремо.
-- **Вхід:** має існувати `docs/product/start-project.md` (створюється автоматично в `/vladyslav:init-project` зі шаблона `skills/init-project/assets/StartProject.md`).
+> Скіли `discover` / `discover-apple-check` прибрано у v5.0.0. Discovery робиться вручну або разовим промптом: заповни секції 6–10 у `docs/product/start-project.md` (конкуренти — WebSearch, монетизація/оцінка — обговорення в сесії). Для iOS rejection-risk перевірки викликай скіл `apple-appstore-reviewer` напряму.
 
 ### Документування проекту
 
@@ -141,9 +114,7 @@
 cd ~/NewProject
 /vladyslav:init-project                    # структура + CLAUDE.md + docs/
                                            # + пише docs/product/start-project.md зі шаблона
-/vladyslav:discover                        # сам заповнює секції 6-11 (competitors, monetization,
-                                           # valuation, marketing, apple-check якщо iOS)
-                                           # verdict GREEN → продовжуємо, RED → реопен ідеї
+# (заповни секції 1-10 в start-project.md вручну — discovery-скіли прибрано у v5.0.0)
 /vladyslav:ingest                          # (опційно) сканує код + seeds MemPalace
                                            # корисно після кількох фіч для оновлення architecture docs
 /vladyslav:add-feature                     # повний цикл першої фічі (auto mode рекомендовано)
@@ -175,8 +146,6 @@ cd ~/ExistingRepo
 ```
 
 **Ефект:** кожна наступна сесія починається з `mempalace_search wing=<project>` замість сканування коду. Нові фічі (`/vladyslav:add-feature`) автоматично використовують контекст і глобальні правила.
-
-**Якщо проект ще без product discovery** — після `ingest` запусти `/vladyslav:discover` з існуючим `start-project.md` (або створи його руками) щоб заповнити competitors/monetization/valuation/marketing.
 
 ### Сценарій C: Критичний баг
 
@@ -283,7 +252,6 @@ mempalace_search wing=<project>      # попередні міграції, gotc
 - `write-project-docs`, `write-test-docs`, `write-user-stories` — документація
 - `owasp-security` (standalone повний аудит — автоматичний тільки в auto-gate)
 - `pre-release-check` — фінальна верифікація
-- `discover*` сімейство — product research
 - `ingest` — одноразова операція (або після великих рефакторів)
 - `fix-bug`, `add-feature` — навмисно explicit, бо запускають повний цикл
 
@@ -355,10 +323,7 @@ mempalace_search wing=<project>      # попередні міграції, gotc
 | `init-project` | Engineer | Новий проект з нуля (+ пише `start-project.md` зі шаблона) |
 | `attach-project` | Engineer | Приєднання Claude до існуючого коду |
 | `ingest` | Architect 🧠 | Єдиний прохід: architecture docs + MemPalace seed. Замінює `analyze-project` + `seed-mempalace`. |
-| `design-sync` | Architect 🧠 | Сканує UI-код, канонізує токени, пише `docs/design/system.md` + MemPalace. iOS: автоматичний HIG аудит через `apple-hig-expert` |
-| `design-page` | Architect | Паралельні субагенти для кожного екрану в Pencil. Full-auto. Читає `docs/design/system.md` як контракт, пише `docs/design/pages/<screen>.md` |
-| `discover` | Architect | Повний цикл product discovery — competitors §6, monetization §8, valuation §9, marketing §10. Scope-вибір: All / Custom / Skip done |
-| `discover-apple-check` | Architect | iOS App Store rejection-risk check → §11. Можна запускати окремо або всередині `discover` |
+| `orchestrate` | Architect | Точка входу: класифікує запит, маршрутизує в потрібний скіл, тривіальне робить інлайн |
 | `add-feature` | Architect | Повний цикл нової фічі (manual / auto mode) |
 | `fix-bug` | Architect | Повний цикл фіксу багу |
 | `write-user-stories` | Engineer | Генерація user stories |
@@ -368,11 +333,12 @@ mempalace_search wing=<project>      # попередні міграції, gotc
 | `swiftui-pro` | Engineer | Ревю SwiftUI/Swift коду: deprecated API, accessibility, HIG, Swift concurrency (iOS 26 / Swift 6.2). Автоматично викликається в `add-feature` Step 6.5 для iOS проектів. |
 | `compact-save` | Engineer 🧠 | Знімок task state в MemPalace (auto перед compaction) |
 | `save` | Engineer 🧠 | Зберігає knowledge record в MemPalace (decision / preference / milestone / problem) |
-| `help` | — | Список скілів і хелп |
+| `qsave` | Engineer 🧠 | Швидкий запис у MemPalace без питань (все з розмови) |
+| `smoke-test-skills` | Engineer | Batch-валідація всіх скілів плагіна (статичні перевірки) |
 
-**Architect** (8 скілів: `ingest`, `add-feature`, `fix-bug`, `discover`, `discover-apple-check`, `design-sync`, `design-page`, `swiftui-pro`) — інтерактивно в Opus main. Внутрішні Agent dispatches позначені `model="sonnet"` (executor) або `model="opus"` (synthesis).
-**Engineer (light) — bash-driven** (`init-project`, `attach-project`, `pre-release-check`) — pre-flight Q&A в Opus, потім bash-скрипт, потім summary.
-**Engineer (light) — Opus inline** (`write-user-stories`, `write-test-docs`, `write-project-docs`, `compact-save`, `save`, `help`) — LLM-генерація без dispatch.
+**Architect** (5 скілів: `orchestrate`, `ingest`, `add-feature`, `fix-bug`, `swiftui-pro`) — інтерактивно в Opus main. Внутрішні Agent dispatches позначені `model="sonnet"` (executor) або `model="opus"` (synthesis).
+**Engineer (light) — bash-driven** (`init-project`, `attach-project`, `pre-release-check`, `smoke-test-skills`) — pre-flight Q&A в Opus, потім bash-скрипт, потім summary.
+**Engineer (light) — Opus inline** (`write-user-stories`, `write-test-docs`, `write-project-docs`, `compact-save`, `save`, `qsave`) — LLM-генерація без dispatch.
 
 ---
 
@@ -406,11 +372,9 @@ mempalace_search wing=<project>      # попередні міграції, gotc
 ### iOS HIG Rules (ehmo/platform-design-skills)
 
 **Джерело:** [ehmo/platform-design-skills](https://github.com/ehmo/platform-design-skills) (MIT)
-**Розміщення:** вбудовано в `skills/swiftui-pro/references/ios-hig.md` + `design-page` subagent prompt
+**Розміщення:** вбудовано в `skills/swiftui-pro/references/ios-hig.md`
 
-HIG правила по 10 категоріях (CRITICAL/HIGH/MEDIUM) з Correct/Incorrect прикладами Swift кодe. Перевіряються на двох рівнях:
-- **Design time** (`design-page`): subagent робить HIG audit перед малюванням в Pencil, блокує CRITICAL порушення
-- **Code review time** (`swiftui-pro`): `ios-hig.md` входить у Step 6 ревю SwiftUI коду
+HIG правила по 10 категоріях (CRITICAL/HIGH/MEDIUM) з Correct/Incorrect прикладами Swift коду. Перевіряються на code review: `ios-hig.md` входить у ревю SwiftUI коду скілом `swiftui-pro`.
 
 ---
 
@@ -448,7 +412,7 @@ $ mkdir ~/chess-duel && cd ~/chess-duel && claude
 ```
 > /vladyslav:init-project
 ```
-Я питаю режим — ти: "interactive". Pre-flight Q&A в Opus main, потім `scripts/modules/core.sh` за ~1 секунду пише голий AI shell (`CLAUDE.md`, `.claude/settings.json`, `.gitignore`, `.remember/`), далі opt-in меню дозволяє вибрати docs / backend-infra / agents — кожен модуль в `scripts/modules/` виконується тільки якщо вибраний. Report: "Заповни секції 1–4 і запусти `/vladyslav:discover`".
+Я питаю режим — ти: "interactive". Pre-flight Q&A в Opus main, потім `scripts/modules/core.sh` за ~1 секунду пише голий AI shell (`CLAUDE.md`, `.claude/settings.json`, `.gitignore`, `.remember/`), далі opt-in меню дозволяє вибрати docs / backend-infra / agents — кожен модуль в `scripts/modules/` виконується тільки якщо вибраний. Report: "Заповни секції 1–4 у `docs/product/start-project.md`".
 
 **Крок 2 — заповнюєш руками секції 1–4** в `docs/product/start-project.md`:
 - §1 Ідея: "iOS шахи з ШІ що пояснює кожен твій хід українською"
@@ -456,18 +420,7 @@ $ mkdir ~/chess-duel && cd ~/chess-duel && claude
 - §3 Аудиторія: "1200–1800 ELO, українськомовні"
 - §4 MVP scope: "Дошка + ходи + один простий бот + post-move пояснення"
 
-**Крок 3 — discovery (Architect, в тій самій сесії).**
-```
-> /vladyslav:discover
-```
-Я питаю: "All / Custom / Skip done?" → ти: "All". Я послідовно проходжу всі секції всередині одного скіла:
-- §6 Competitors: Chess.com, Lichess, Chess Kid, Play Magnus → `docs/product/competitors.md`
-- §8 Monetization: freemium + premium пояснення ШІ
-- §9 Valuation: **YELLOW** (ніша насичена, диференціатор = укр ШІ-тренер)
-- §10 Marketing: Reddit r/chess_ua, YouTube chess-укр канали, TikTok short games
-- §11 Apple-check (через `discover-apple-check`): **GREEN** (немає UGC, IAP стандартний, privacy manifest простий)
-
-Пишу `docs/product/discovery-summary.md`. Ти читаєш YELLOW verdict → вирішуєш що диференціатор OK → продовжуєш.
+**Крок 3 — product research (вручну, за бажанням).** Заповнюєш секції 6–10 у `start-project.md` сам або разовим промптом у сесії (конкуренти через WebSearch, монетизація/оцінка — обговоренням). Для iOS rejection-risk — скіл `apple-appstore-reviewer` напряму.
 
 **Крок 4 — перша фіча (Architect).**
 ```
@@ -525,11 +478,7 @@ $ cd ~/python-tax && claude
 ```
 Я читаю код + роутинг + тести, пишу `docs/product/user-stories.md` зі статусами (Done / Partial / Not started).
 
-**Крок 4 — якщо треба discovery заднім числом:**
-```
-> /vladyslav:discover
-```
-Я помічу що в `start-project.md` секції 1–4 порожні (бо init не запускали), питаю: "Заповниш вручну чи скіпаємо discovery?" Ти вирішуєш.
+**Крок 4 — якщо треба product research заднім числом:** заповнюєш секції у `start-project.md` вручну або разовим промптом (див. Приклад 1, Крок 3).
 
 **Крок 5 — нова фіча (як у Прикладі 1).**
 ```
