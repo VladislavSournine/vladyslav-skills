@@ -61,11 +61,34 @@ Execute these checks sequentially. If all pass → commit. If any fails → STOP
 
 **If all checks pass:** proceed to commit. The pre-commit hook (`~/.claude/hooks/pre-commit-review.sh`) will still fire as an additional safety net — that's expected, not redundant. Compose a concise commit message referencing the contract piece, stage only the files from the plan (not `git add -A`), commit.
 
-**If any check fails:**
-- Print the failure details to the user
-- Stop the loop
-- Ask: "Auto-gate failure at <step>. <details>. How to proceed? (fix and retry / reopen plan / abort feature)"
-- Do NOT bypass the gate. Do NOT weaken the check ("the test is flaky, let's skip it"). The gate is a contract with the user.
+**If any check fails — classify first:**
+
+| Class | Failures | Behaviour |
+|---|---|---|
+| **Quality** | `tests` fail, `hygiene` fail, HIGH code-review finding, `owasp-security` finding | Self-repair, max **2** attempts |
+| **Scope** | `contract_changed`, any `readonly_touched`, >2 `files_outside_plan`, `SCOPE EXPANSION REQUIRED` in agent output | **Escalate immediately — never self-repair** |
+
+Scope failures are questions about *what may change*, not about correctness. They stay the user's decision — see the Scope Sentinel and Blast Radius rules in `~/.claude/CLAUDE.md`.
+
+**Self-repair loop (quality failures only):**
+
+1. Dispatch a fix agent — `Agent` tool, `subagent_type: "general-purpose"`, `model: "sonnet"` — with: the failing check's output verbatim, the contract, and **the same file allowlist** the original task had.
+2. Re-run `quality-gate.sh` with the identical arguments used in Step 6.
+3. Green → continue to commit. Red → attempt 2.
+4. Still red after attempt 2 → **stop**. Report to the user: the original failure, what each attempt changed (`git diff` per attempt), and why it still fails. Do not attempt a third time.
+
+A scope failure appearing *during* a repair attempt aborts the loop immediately and escalates — repairs never widen scope in order to succeed.
+
+**Forbidden repairs.** A repair attempt must never:
+
+- delete, skip, or `xfail` a failing test
+- weaken an assertion, or narrow its inputs so it stops covering the failure
+- reduce the scope passed to `owasp-security` or the code reviewer
+- add `# noqa`, `eslint-disable`, `@ts-ignore`, or any equivalent suppression
+
+Repair means fixing the cause. If the agent concludes the test itself is wrong, that is an **escalation**, not a repair — report it and let the user decide. Do NOT bypass the gate. Do NOT weaken the check ("the test is flaky, let's skip it"). The gate is a contract with the user.
+
+**When the repair budget is spent**, ask: "Auto-gate failure at <step> after 2 repair attempts. <details>. How to proceed? (fix and retry / reopen plan / abort feature)"
 
 > **Tests checkpoint:** Before accepting "done" from Step 6, explicitly ask: "Did each task include tests written alongside the implementation (not deferred)?" If not, send the user back to write the missing tests before proceeding.
 

@@ -34,7 +34,7 @@ Record the chosen mode for the rest of the flow. Do **not** default to Auto sile
 - More than **2 files touched outside the approved plan** (new files not in the plan)
 - **Any existing file refactored outside the plan** (refactor of a file that was "read-only reference" → STOP, regardless of size)
 - **Contract or spec changed during execution** (the contract file from Step 4.5 has been modified)
-- **Pre-commit auto-gate failure** (see Steps 6/6.5) — quality gate (tests, diff hygiene, secrets, scope via `scripts/quality-gate.sh`), code review, or security check reports blocker
+- **Pre-commit auto-gate failure** (see Steps 6/6.5) — *quality* failures (tests, hygiene, code review, security) get up to **2 automatic repair attempts** first; *scope* failures (contract changed, read-only file touched, >2 files outside plan) escalate immediately. Escalation happens only after the repair budget is spent
 
 Any guard rail → stop, report the situation to the user, ask what to do. Do NOT attempt to work around a guard rail silently.
 
