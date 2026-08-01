@@ -7,7 +7,9 @@ The plugin uses three Engineer/Architect patterns. Picking the right one for a n
 ### Architect
 - **Where it runs:** Interactive in Opus main session, top to bottom.
 - **When to use:** The skill makes semantic decisions on existing code, composes narratives, synthesises across multiple inputs, or coordinates parallel subagent dispatches.
-- **Examples:** `add-feature`, `fix-bug`, `discover`, `discover-apple-check`, `design-sync`, `design-page`, `ingest`, `swiftui-pro`.
+- **Examples:** `orchestrate`, `add-feature`, `fix-bug`, `discover`, `discover-apple-check`, `design-sync`, `design-page`, `ingest`, `swiftui-pro`.
+
+> **`orchestrate` is the routing layer, not a pipeline.** It sits above the other skills: it classifies a raw request, announces the chosen route, and delegates via the `Skill` tool. It implements no pipeline of its own and contains no `Agent(` dispatch — which is why the Architect `model=` rule has nothing to check in it. Trivial work is routed to "no skill, act inline" on purpose; wrapping a one-line edit in a full pipeline would violate the ladder rule in `~/.claude/CLAUDE.md`. Activation is a short trigger in the user's global `CLAUDE.md`, keeping the logic versioned here rather than in an untested instructions file.
 - **Internal dispatch:** Allowed via `Agent(..., model="sonnet")` for executor work (write tests / write impl / run code review / run security check) or `Agent(..., model="opus")` for synthesis/research work (deep analysis, multi-source research, design decisions). When used, the dispatch is explicit and per-step — not a wholesale subagent that owns the whole skill body.
 
 ### Engineer (light) — bash-driven

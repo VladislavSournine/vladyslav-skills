@@ -21,6 +21,7 @@ Run any skill from a single Opus session. No manual `/model` switching required.
 
 | Skill | Purpose |
 |-------|---------|
+| `orchestrate` | Entry point — classifies a request, routes it to the right skill |
 | `ingest` | Existing-project intake: architecture docs + MemPalace seed in one scan pass |
 | `add-feature` | Add feature (full cycle, 9 superpowers) |
 | `fix-bug` | Fix bug (full cycle, 7 superpowers) |

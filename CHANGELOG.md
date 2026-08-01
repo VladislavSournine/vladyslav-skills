@@ -1,5 +1,15 @@
 # Changelog
 
+## v4.9.0
+
+Orchestrator entry point, a security step `fix-bug` never had, and bounded self-repair on the quality gate.
+
+- **`orchestrate` (new skill)** — single entry point for code work. Classifies a raw request, announces the route in one line, delegates via the `Skill` tool. Reimplements no pipeline. Trivial work (typo, version bump, one-liner, git operation) deliberately bypasses it — wrapping a typo in a full pipeline violates the ladder rule.
+- **`fix-bug` Step 6.5 (new)** — invokes `owasp-security` on the fix diff. Previously `owasp-security` was wired only into `add-feature` Auto mode, so bug fixes shipped with no security review at all.
+- **Bounded self-repair (`add-feature/references/auto-mode.md`)** — *quality* failures (tests, hygiene, HIGH review finding, security finding) now get up to 2 automatic repair attempts before escalating. *Scope* failures (contract changed, read-only file touched, >2 files outside plan, `SCOPE EXPANSION REQUIRED`) still escalate immediately and are never self-repaired — Scope Sentinel stays absolute. A new "Forbidden repairs" section bans the predictable cheats: deleting/skipping tests, weakening assertions, narrowing the security scope, or adding suppressions.
+- **`add-feature` Step 0.5** — accepts a Manual/Auto mode supplied by `orchestrate` instead of asking a second time.
+- **`save` wing derivation fixed** — it lowercased the derived wing, contradicting both `scripts/derive-wing.sh` and `_shared/references/mempalace-record.md` ("case preserved"). Wings such as `Svitlana` and `phD` resolved to names that match nothing. `save` now defers to the shared reference for both the wing algorithm and the record shape, which is what kept `qsave` correct.
+
 ## v4.8.0
 
 Optional CodeGraph integration — faster code navigation for the scanning skills, zero new required dependency.

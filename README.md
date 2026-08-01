@@ -52,7 +52,7 @@ Run any skill from a single Opus session. No manual `/model` switching required.
 
 | Skill type | Where it runs |
 |-----------|---------------|
-| **Architect** (8 skills) | Opus main session — interactive design + synthesis. Internal `Agent(...)` dispatches annotated explicitly with `model="sonnet"` (executor work) or `model="opus"` (synthesis/research). |
+| **Architect** (9 skills) | Opus main session — interactive design + synthesis. Internal `Agent(...)` dispatches annotated explicitly with `model="sonnet"` (executor work) or `model="opus"` (synthesis/research). |
 | **Engineer (light) — bash-driven** (`init-project`, `attach-project`, `pre-release-check`) | Pre-flight Q&A in Opus main → a single deterministic bash helper does the work (~1 second) → summary rendered. |
 | **Engineer (light) — Opus inline** (`write-user-stories`, `write-test-docs`, `write-project-docs`, `compact-save`, `save`, `qsave`, `help`) | Pre-flight Q&A + LLM-driven generation, all in Opus main, no Sonnet subagent dispatch. |
 
@@ -66,6 +66,7 @@ Run any skill from a single Opus session. No manual `/model` switching required.
 
 | Skill | Purpose |
 |-------|---------|
+| `/vladyslav:orchestrate` | **Entry point** — classifies a request, routes it to the right skill, owns the quality mandate. Trivial edits deliberately bypass it. |
 | `/vladyslav:ingest` | Existing-project intake: writes architecture docs AND seeds MemPalace in one scan pass. |
 | `/vladyslav:add-feature` | Add feature (full cycle, 9 superpowers) |
 | `/vladyslav:fix-bug` | Fix bug (full cycle, 7 superpowers) |
