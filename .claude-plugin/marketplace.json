@@ -5,7 +5,7 @@
   },
   "metadata": {
     "description": "Project scaffolding, analysis, documentation, and release skills for solo/team development",
-    "version": "4.6.0"
+    "version": "5.0.0"
   },
   "plugins": [
     {
@@ -15,7 +15,7 @@
         "url": "git@github.com:VladislavSournine/vladyslav-skills.git"
       },
       "description": "Project scaffolding, analysis, documentation, and release skills for solo/team development",
-      "version": "4.6.0",
+      "version": "5.0.0",
       "strict": false
     }
   ]
