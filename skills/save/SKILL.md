@@ -24,6 +24,8 @@ Derive the wing using the algorithm in `<plugin>/skills/_shared/references/mempa
 
 Do **not** lowercase — wings such as `Svitlana` and `phD` carry meaningful case, and lowercasing them produces a wing that matches nothing. After deriving, reconcile against the wings list in `~/.claude/CLAUDE.md` to catch case drift. If ambiguous or outside a known project, prompt the user to confirm or specify the wing. Never guess silently.
 
+An explicit wing named by the user overrides derivation — e.g. "save to ops" targets the thematic `ops` wing for cross-project server/deploy knowledge (see the "Wing" section of the shared reference).
+
 ### Step 2: Identify content and type
 
 If the user provided the content to save in their message → use it directly.

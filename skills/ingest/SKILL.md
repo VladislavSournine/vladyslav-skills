@@ -110,7 +110,7 @@ Using `ARCH`, write or update:
 - **`docs/architecture/db-schema.sql`** — only if `schema_files` is non-empty. Stitch the relevant SQL migrations / Prisma / Drizzle schemas into one consolidated reference. Preserve user-edited sections.
 
 Do NOT touch:
-- `docs/product/*` (that's `discover` / `init-project`'s job)
+- `docs/product/*` (that's `init-project`'s job)
 - `docs/plans/*`, `docs/testing/*`, `docs/release/*`, `docs/operations/*`, `docs/marketing/*` (these are not architecture)
 
 If `claude_md.exists` is false → also write a minimal `CLAUDE.md` with the Source-of-Truth table pointing at the docs you just wrote. If it already exists, leave it alone (it's a high-touch user document — don't blast it).
@@ -186,8 +186,7 @@ CLAUDE.md memory pointer: <added | updated | unchanged>
 
 Next steps:
 - /vladyslav:add-feature  — build new features with both architecture docs and MemPalace context now ready
-- /vladyslav:design-sync  — if UI work is upcoming
-- /vladyslav:discover     — only if docs/product/start-project.md is incomplete (rare on an existing project)
+- /vladyslav:write-user-stories — if a registry of implemented features is needed
 ```
 
 ---
@@ -205,7 +204,7 @@ Next steps:
 - `docs/architecture/db-schema.sql` (schemas only)
 - `CLAUDE.md` — only if missing; never overwritten
 - MemPalace records in the project's wing
-- (Optional) one new entry in `swift-calories` wing — only if a new Apple-pattern decision is discovered (rare; mostly `discover-apple-check`'s job)
+- (Optional) one new entry in `swift-calories` wing — only if a new Apple-pattern decision is discovered (rare)
 
 ## Re-running ingest on a previously-seeded project
 

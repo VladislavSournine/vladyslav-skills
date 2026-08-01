@@ -25,8 +25,8 @@ Map the request to exactly one route:
 | "add", "make", new behaviour, "додай", "зроби" | `vladyslav:add-feature` |
 | existing project with no `docs/architecture/` | `vladyslav:ingest`, then classify again |
 | new project from scratch | `vladyslav:init-project` |
-| screens, design tokens, visual work | `vladyslav:design-sync` (no `docs/design/system.md`) or `vladyslav:design-page` |
 | "preparing a release", pre-deploy verification | `vladyslav:pre-release-check` |
+| UI/visual work | no dedicated skill — follow the Design System Discipline rule in `~/.claude/CLAUDE.md`, then route the code change as `add-feature`/`fix-bug` |
 | **trivial** — typo, version bump, one-liner, git operation, question about the code | **no skill — act inline** |
 
 The trivial row is not optional. Wrapping a typo in a full pipeline violates the ladder rule in `~/.claude/CLAUDE.md` ("prefer the laziest solution that actually works"). When genuinely torn between trivial and `fix-bug`, ask in one line.

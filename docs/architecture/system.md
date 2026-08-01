@@ -7,7 +7,7 @@ The plugin uses three Engineer/Architect patterns. Picking the right one for a n
 ### Architect
 - **Where it runs:** Interactive in Opus main session, top to bottom.
 - **When to use:** The skill makes semantic decisions on existing code, composes narratives, synthesises across multiple inputs, or coordinates parallel subagent dispatches.
-- **Examples:** `orchestrate`, `add-feature`, `fix-bug`, `discover`, `discover-apple-check`, `design-sync`, `design-page`, `ingest`, `swiftui-pro`.
+- **Examples:** `orchestrate`, `add-feature`, `fix-bug`, `ingest`, `swiftui-pro`.
 
 > **`orchestrate` is the routing layer, not a pipeline.** It sits above the other skills: it classifies a raw request, announces the chosen route, and delegates via the `Skill` tool. It implements no pipeline of its own and contains no `Agent(` dispatch — which is why the Architect `model=` rule has nothing to check in it. Trivial work is routed to "no skill, act inline" on purpose; wrapping a one-line edit in a full pipeline would violate the ladder rule in `~/.claude/CLAUDE.md`. Activation is a short trigger in the user's global `CLAUDE.md`, keeping the logic versioned here rather than in an untested instructions file.
 - **Internal dispatch:** Allowed via `Agent(..., model="sonnet")` for executor work (write tests / write impl / run code review / run security check) or `Agent(..., model="opus")` for synthesis/research work (deep analysis, multi-source research, design decisions). When used, the dispatch is explicit and per-step — not a wholesale subagent that owns the whole skill body.
@@ -65,7 +65,7 @@ Three cross-skill references, all with active consumers. (The three Heavy-Engine
 |---|---|---|
 | `mempalace-record.md` | All 8 MemPalace-using skills | Required record shape: `[WHAT] [WHY] [FILES] [DATE]` plus room-type rules and wing canonicalisation. |
 | `verify-pwd.md` | 6 Architect skills (`add-feature`, `fix-bug`, `discover`, `design-sync`, `design-page`, `ingest`) | Step 0.1 contract: `CLAUDE.md` presence check + canonical wing derivation. Skills reference this instead of inlining the 11-22-line block. |
-| `orchestration-conventions.md` | 9 dispatching skills (`add-feature`, `fix-bug`, `discover`, `discover-apple-check`, `design-sync`, `design-page`, `ingest`, `write-project-docs`, `write-test-docs`) | Opus 4.8 dispatch contract: `Skill` vs `Agent` vs `Workflow`, model tiers (`opus`/`sonnet`/`haiku`), and what is / is not safe to parallelize. Skills point here instead of repeating it inline. |
+| `orchestration-conventions.md` | 6 dispatching skills (`orchestrate`, `add-feature`, `fix-bug`, `ingest`, `write-project-docs`, `write-test-docs`) | Opus 4.8 dispatch contract: `Skill` vs `Agent` vs `Workflow`, model tiers (`opus`/`sonnet`/`haiku`), and what is / is not safe to parallelize. Skills point here instead of repeating it inline. |
 
 ## Helper Scripts (`scripts/`)
 
@@ -73,7 +73,7 @@ Fifteen POSIX-portable bash helpers (macOS + Linux, no python/node dependency). 
 
 | Script | Used by | Purpose |
 |---|---|---|
-| `detect-stack.sh` | `attach-project`, `discover`, `discover-apple-check`, `design-sync`, `extract-tokens`, `scan-architecture`, `pre-release-checks` | Probes pwd → JSON `{ios, swift, flutter, kotlin, android, python, go, node, web, backend, plugin, ui, docker}` |
+| `detect-stack.sh` | `attach-project`, `scan-architecture`, `pre-release-checks` | Probes pwd → JSON `{ios, swift, flutter, kotlin, android, python, go, node, web, backend, plugin, ui, docker}` |
 | `derive-wing.sh` | (callable by any skill; currently unused inline — `_shared/verify-pwd.md` documents the algorithm) | Canonical MemPalace wing name (lowercase, platform-prefixed). Eliminates case-mismatch bugs. |
 | `write-stub.sh` | `attach-project` | Idempotent placeholder Markdown writer: `# Title\n\n*to be filled*\n` |
 | `init-git-repo.sh` | none (legacy — `core.sh` inlines `git init`) | Idempotent `git init` + initial commit; safe to call on existing repos. |

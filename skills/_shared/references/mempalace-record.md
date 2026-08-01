@@ -1,6 +1,6 @@
 # MemPalace decision-record template
 
-Used by all skills that write to MemPalace (`add-feature`, `fix-bug`, `discover`, `discover-apple-check`, `design-sync`, `ingest`, `pre-release-check`, `compact-save`).
+Used by all skills that write to MemPalace (`add-feature`, `fix-bug`, `ingest`, `pre-release-check`, `compact-save`, `save`, `qsave`).
 
 Every drawer should be addable in one search query later — write for **searchability**, not narrative.
 
@@ -36,6 +36,8 @@ Use these `room` values consistently:
 ## Wing
 
 Always pass the canonical wing name. Use `scripts/derive-wing.sh` (or for manual paths, follow the same algorithm: the project directory **basename**, with whitespace/underscores/dots collapsed to single hyphens — case preserved, no lowercasing, no added stack prefix). The basename already carries its own convention prefix where one applies (`swift-calories`, `python-tax`) and deliberately omits it where it doesn't (`brain`, `documents`, `phD`, `vladyslav-skills`). After deriving, reconcile against the wings list in `~/.claude/CLAUDE.md` to catch case drift like `swift-Sudoku` vs `swift-sudoku`.
+
+**Exception — thematic wing `ops`:** cross-project operational knowledge (Docker patterns, DigitalOcean deploy steps, alembic pitfalls, nginx/env tricks) goes to the wing `ops`, NOT to the project wing where it happened to surface. Test: "would this record help on a *different* project's server work?" — if yes, `ops`. Project-specific deploy decisions (droplet size for X, domain for Y) stay in the project wing. An explicit wing named by the user always overrides derivation.
 
 ## Searchability test
 

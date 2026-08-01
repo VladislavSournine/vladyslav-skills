@@ -27,10 +27,10 @@ claude
 ### Skills that require MemPalace 🧠
 
 <!-- mempalace-skills:start -->
-`add-feature`, `fix-bug`, `discover`, `discover-apple-check`, `design-sync`, `ingest`, `pre-release-check`, `compact-save`, `save`, `qsave`
+`add-feature`, `fix-bug`, `ingest`, `pre-release-check`, `compact-save`, `save`, `qsave`
 <!-- mempalace-skills:end -->
 
-The other skills (`init-project`, `attach-project`, `write-*`, `help`, `swiftui-pro`, `design-page`, `smoke-test-skills`) work without MemPalace.
+The other skills (`orchestrate`, `init-project`, `attach-project`, `write-*`, `swiftui-pro`, `smoke-test-skills`) work without MemPalace.
 
 ### Optional: CodeGraph code index
 
@@ -52,9 +52,9 @@ Run any skill from a single Opus session. No manual `/model` switching required.
 
 | Skill type | Where it runs |
 |-----------|---------------|
-| **Architect** (9 skills) | Opus main session — interactive design + synthesis. Internal `Agent(...)` dispatches annotated explicitly with `model="sonnet"` (executor work) or `model="opus"` (synthesis/research). |
+| **Architect** (5 skills) | Opus main session — interactive design + synthesis. Internal `Agent(...)` dispatches annotated explicitly with `model="sonnet"` (executor work) or `model="opus"` (synthesis/research). |
 | **Engineer (light) — bash-driven** (`init-project`, `attach-project`, `pre-release-check`) | Pre-flight Q&A in Opus main → a single deterministic bash helper does the work (~1 second) → summary rendered. |
-| **Engineer (light) — Opus inline** (`write-user-stories`, `write-test-docs`, `write-project-docs`, `compact-save`, `save`, `qsave`, `help`) | Pre-flight Q&A + LLM-driven generation, all in Opus main, no Sonnet subagent dispatch. |
+| **Engineer (light) — Opus inline** (`write-user-stories`, `write-test-docs`, `write-project-docs`, `compact-save`, `save`, `qsave`) | Pre-flight Q&A + LLM-driven generation, all in Opus main, no Sonnet subagent dispatch. |
 
 > **Heavy Engineer (deprecated):** v2.x wrapped Engineer skills in a Sonnet subagent dispatch with a YAML return contract. As of v3.1.0 no skill uses this pattern — the migrated skills run as Light Engineers. v4.6.0 removed the contract references (`subagent-preamble.md`, `yaml-return.md`, `present-summary.md`, `parse-yaml-return.sh`); recover them from git history if the pattern ever returns. See `docs/architecture/system.md`.
 
@@ -70,10 +70,6 @@ Run any skill from a single Opus session. No manual `/model` switching required.
 | `/vladyslav:ingest` | Existing-project intake: writes architecture docs AND seeds MemPalace in one scan pass. |
 | `/vladyslav:add-feature` | Add feature (full cycle, 9 superpowers) |
 | `/vladyslav:fix-bug` | Fix bug (full cycle, 7 superpowers) |
-| `/vladyslav:discover` | Auto-fill product/start-project.md via AI research |
-| `/vladyslav:discover-apple-check` | Apple App Store compliance pre-check (iOS only) |
-| `/vladyslav:design-sync` | Extract design tokens from code into docs/design/system.md |
-| `/vladyslav:design-page` | Design app screens in Pencil via parallel subagents |
 | `/vladyslav:swiftui-pro` | SwiftUI/Swift code review for iOS 26 / Swift 6.2 best practices |
 | `/vladyslav:smoke-test-skills` | Batch-validate all plugin skills (frontmatter, command delegation, cross-references, Architect model= rule, orphan references, README↔MemPalace sync) |
 
@@ -95,13 +91,12 @@ Run any skill from a single Opus session. No manual `/model` switching required.
 | `/vladyslav:compact-save` | Snapshot task state to MemPalace (auto before compact) |
 | `/vladyslav:save` | Save a knowledge record to MemPalace (decision / preference / milestone / problem) |
 | `/vladyslav:qsave` | Quick-save the latest decision/problem/milestone to MemPalace — zero questions, derived from the conversation |
-| `/vladyslav:help` | This reference |
 
 ## Workflows
 
 **New project:**
 ```
-init-project → discover → add-feature → write-test-docs → pre-release-check
+init-project → add-feature → write-test-docs → pre-release-check
 ```
 
 **Existing project:**

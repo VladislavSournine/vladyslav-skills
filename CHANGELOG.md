@@ -1,5 +1,23 @@
 # Changelog
 
+## v5.0.0
+
+**BREAKING:** five unused skills removed after a usage audit. Recover any of them from git history (`git log --diff-filter=D --name-only`) if ever needed again.
+
+### Removed
+- **`discover` + `discover-apple-check`** — product-discovery research pipeline. Replacement: fill `start-project.md` sections 6–10 manually or with a one-off AI-research prompt; for iOS rejection-risk call the `apple-appstore-reviewer` skill directly.
+- **`design-sync` + `design-page`** — design-token canonization and Pencil screen generation. The Design System Discipline *rule* (global CLAUDE.md) remains in force; `templates/DesignSystem.md` and the `init-project` design-system module are kept.
+- **`help`** — static catalogue; superseded by `orchestrate` as the entry point and by README/SkillsManual as references.
+- `scripts/extract-tokens.sh` — orphaned by `design-sync` removal.
+
+### Added
+- **Thematic MemPalace wing `ops`** — cross-project operational knowledge (Docker patterns, DigitalOcean deploys, alembic pitfalls) now has a documented home; `save`/`qsave` accept an explicit wing override ("save to ops"). Convention documented in `_shared/references/mempalace-record.md`.
+- The `orchestrate` activation trigger is now installed in the user's global `~/.claude/CLAUDE.md` ("Orchestrator Entry Point").
+
+### Changed
+- Skill counts and MemPalace-dependency lists updated everywhere (README, CLAUDE.md, SkillsManual, plugin description: 7 skills require MemPalace).
+- `orchestrate` routing table: UI/visual work now routes through the Design System Discipline rule + `add-feature`/`fix-bug` instead of the removed design skills.
+
 ## v4.9.0
 
 Orchestrator entry point, a security step `fix-bug` never had, and bounded self-repair on the quality gate.
