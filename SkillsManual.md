@@ -12,7 +12,7 @@
 
 ### Скіли що вимагають MemPalace 🧠
 
-`add-feature` · `fix-bug` · `ingest` · `pre-release-check` · `compact-save` · `qsave`
+`add-feature` · `fix-bug` · `ingest` · `pre-release-check` · `compact-save` · `qsave` · `memory-lint`
 
 Інші скіли (`orchestrate`, `init-project`, `attach-project`, `write-docs`, `swiftui-pro`, `smoke-test-skills`) працюють без MemPalace.
 
@@ -328,10 +328,11 @@ mempalace_search wing=<project>      # попередні міграції, gotc
 | `compact-save` | Engineer 🧠 | Знімок task state в MemPalace (auto перед compaction) |
 | `qsave` | Engineer 🧠 | Швидкий запис у MemPalace без питань (все з розмови) |
 | `smoke-test-skills` | Engineer | Batch-валідація всіх скілів плагіна (статичні перевірки) |
+| `memory-lint` | Engineer 🧠 | Health-check MemPalace: дрейф wing-ів, split-brain, недокументовані кімнати, мертві шляхи. Тільки звіт + регенерація wing-індексу |
 
 **Architect** (5 скілів: `orchestrate`, `ingest`, `add-feature`, `fix-bug`, `swiftui-pro`) — інтерактивно в Opus main. Внутрішні Agent dispatches позначені `model="sonnet"` (executor) або `model="opus"` (synthesis).
 **Engineer (light) — bash-driven** (`init-project`, `attach-project`, `pre-release-check`, `smoke-test-skills`) — pre-flight Q&A в Opus, потім bash-скрипт, потім summary.
-**Engineer (light) — Opus inline** (`write-docs`, `compact-save`, `qsave`) — LLM-генерація без dispatch.
+**Engineer (light) — Opus inline** (`write-docs`, `compact-save`, `qsave`, `memory-lint`) — LLM-генерація без dispatch.
 
 ---
 

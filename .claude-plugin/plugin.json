@@ -1,7 +1,7 @@
 {
   "name": "vladyslav",
-  "description": "Project scaffolding, analysis, documentation, and release skills for solo/team development. 6 skills require MemPalace MCP server (see README).",
-  "version": "5.0.0",
+  "description": "Project scaffolding, analysis, documentation, and release skills for solo/team development. 7 skills require MemPalace MCP server (see README).",
+  "version": "5.1.0",
   "author": {
     "name": "Vladyslav"
   },
