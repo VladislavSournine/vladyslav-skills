@@ -308,7 +308,28 @@ mempalace_search wing=<project>      # попередні міграції, gotc
 | `receiving-code-review` | Обробка фідбеку з верифікацією |
 | `finishing-a-development-branch` | Merge / PR / cleanup |
 | `using-git-worktrees` | Ізоляція роботи |
-| `verification-before-completion` | Не казати "готово" без доказів |
+| `verification-before-completion` | Не казати "готово" без доказів — викликається в `pre-release-check` Step 2.5 перед винесенням вердикту |
+
+---
+
+## Контракт кроку (v6.0.0)
+
+Кожен нумерований крок будь-якого скіла декларує **стан, який має лишитися після нього**, а не послідовність дій:
+
+```markdown
+### Step 5: Regression test + fix
+
+**Exit criteria:** тест, що падав на баг, проходить; повний сьют зелений;
+diff не виходить за файли, названі в Step 4.5.
+**Evidence:** `quality-gate.sh` виходить з 0; ім'я регресійного тесту; `git diff --stat`.
+**Blocker:** новий тест проходить і на **невиправленому** коді → він не відтворює баг.
+```
+
+`**Exit criteria:**` обов'язковий і перевіряється детерміновано: `scripts/validate-skills.sh` валить будь-який `Step` без цього рядка. `**Evidence:**` і `**Blocker:**` — там, де вони щось важать.
+
+Повний контракт разом зі списком **Anti-gaming** (заборонені способи "зазеленити" крок — видалити тест, послабити assert, звузити скоуп ревю, додати `# noqa`) лежить у `skills/_shared/references/exit-criteria.md`. Читати перед редагуванням будь-якого скіла.
+
+**Manual mode більше не віддає керування в термінал.** До v6.0.0 `add-feature` у Manual зупинявся 13 разів із "тепер запусти `/superpowers:<name>` у себе". Тепер скіл сам викликає під-скіли через `Skill` — режим визначає лише **де зупинятися на апрув**, а не хто запускає під-скіл.
 
 ---
 
@@ -327,7 +348,7 @@ mempalace_search wing=<project>      # попередні міграції, gotc
 | `swiftui-pro` | Engineer | Ревю SwiftUI/Swift коду: deprecated API, accessibility, HIG, Swift concurrency (iOS 26 / Swift 6.2). Автоматично викликається в `add-feature` Step 6.5 для iOS проектів. |
 | `compact-save` | Engineer 🧠 | Знімок task state в MemPalace (auto перед compaction) |
 | `qsave` | Engineer 🧠 | Швидкий запис у MemPalace без питань (все з розмови) |
-| `smoke-test-skills` | Engineer | Batch-валідація всіх скілів плагіна (статичні перевірки) |
+| `smoke-test-skills` | Engineer | Batch-валідація всіх скілів плагіна (статичні перевірки, включно з exit criteria на кожному Step) |
 | `memory-lint` | Engineer 🧠 | Health-check MemPalace: дрейф wing-ів, split-brain, недокументовані кімнати, мертві шляхи. Тільки звіт + регенерація wing-індексу |
 
 **Architect** (5 скілів: `orchestrate`, `ingest`, `add-feature`, `fix-bug`, `swiftui-pro`) — інтерактивно в Opus main. Внутрішні Agent dispatches позначені `model="sonnet"` (executor) або `model="opus"` (synthesis).

@@ -39,6 +39,12 @@ All Q&A happens here before any bash is executed.
 
 Capture: `<pwd>`, `<name>`, `<mode>`, `<root>`.
 
+**Exit criteria:** all four captured; the target directory is empty or the user explicitly approved scaffolding into a non-empty one; `<root>/scripts/modules/core.sh` exists.
+**Evidence:** the `ls -A` output the user saw; `test -x <root>/scripts/modules/core.sh`.
+**Blocker:** running any module before this step completes — every question belongs here, so a half-answered scaffold is impossible.
+
+Steps below follow the exit-criteria contract in `<plugin>/skills/_shared/references/exit-criteria.md`.
+
 ---
 
 ### Step 1: Core (always)
@@ -65,6 +71,10 @@ The script emits a single line of JSON on stdout:
 ```
 
 Capture this JSON. If `status` is `error`, surface the error and stop — do not proceed to Step 2.
+
+**Exit criteria:** `status` is `success` or `partial`, and every path in `files_written` exists on disk with the project name substituted — no `<PROJECT_NAME>` placeholder left behind.
+**Evidence:** the JSON, plus `grep -rl 'REPLACE_ME\|<PROJECT_NAME>' <pwd>` returning nothing.
+**Blocker:** `status: error` → stop, report which module failed and what it wrote first. Never retry automatically.
 
 ---
 
@@ -118,6 +128,10 @@ If no agents are ticked, skip the `agents.sh` call entirely.
 
 Each module call emits the same JSON shape as core. Capture all outputs.
 
+**Exit criteria:** exactly the ticked modules ran; each returned `success` or `partial`; nothing outside the Output allowlist below was written.
+**Evidence:** the per-module JSON; `git status --porcelain` compared against the allowlist.
+**Blocker:** a module writing a path not on its allowlist. Unticked means not created — "they'll probably want it" is not a reason to run a module.
+
 ---
 
 ### Step 3: Roadmap gate
@@ -154,6 +168,10 @@ This step is **non-blocking** — `init-project` completes regardless of the ans
 
 Phases represent MVP milestones — what ships in the first release vs. what comes after.
 
+**Exit criteria:** either no roadmap was requested and no file exists, or `ROADMAP.md` is committed with a one-sentence `**Done when:**` per phase.
+**Evidence:** the commit sha, or the explicit skip.
+**Blocker:** a `**Done when:**` that restates the phase's task list instead of naming a shippable outcome. This step never blocks the skill — an empty answer is a valid answer.
+
 ---
 
 ### Step 4: Summary + smart Next
@@ -181,6 +199,9 @@ Then append a **context-aware `Next:` line** — pick the first that applies:
 The skill **never auto-runs the next skill**. The Next line is informational only.
 
 **`status: error` from any module:** surface the error and which module failed. List files written before the failure. Do not retry automatically.
+
+**Exit criteria:** the counts in the summary match the JSON outputs, and the `Next:` line is the first row of the table that actually applies.
+**Blocker:** reporting files as written without them being in some module's `files_written`.
 
 ---
 

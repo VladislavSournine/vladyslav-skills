@@ -11,6 +11,8 @@ description: Use on an existing project to scan code once and produce both archi
 
 Single-pass project intake. Two bash scripts produce the discovery JSON; Opus main does the narrative synthesis (architecture docs) and the decision extraction (MemPalace records). Both outputs derive from the same source-of-truth scan, so they cannot disagree.
 
+Every step declares what must be true before the next one starts, per `<plugin>/skills/_shared/references/exit-criteria.md`.
+
 ## When to use
 
 - First time you work on an existing project with Claude.
@@ -30,9 +32,17 @@ Apply the verify-working-directory contract from `<plugin>/skills/_shared/refere
 
 If `CLAUDE.md` is missing → STOP and suggest `/vladyslav:attach-project` first to bootstrap the AI workflow shell.
 
+**Exit criteria:** `CLAUDE.md` present; the canonical wing name derived and stated; the path-validation rule in force for every MemPalace read below.
+**Evidence:** the wing name, and the stale-wing warning if duplicates were found.
+**Blocker:** two plausible wings for this project → ask which; seeding into the wrong wing is the split-brain this skill exists to avoid creating.
+
 ### Step 1: Resolve plugin root
 
 Glob `~/.claude/plugins/cache/vladyslav-marketplace/vladyslav/*/scripts/scan-architecture.sh` and take the directory two levels up. Fall back to `/Volumes/DevSSD/Development/vladyslav-skills` (development clone).
+
+**Exit criteria:** a plugin root whose `scripts/` directory actually contains both scanners.
+**Evidence:** `test -x <root>/scripts/scan-architecture.sh && test -x <root>/scripts/gather-seed-signals.sh`.
+**Blocker:** neither the glob nor the fallback resolves → STOP and report; do not reimplement the scan by hand.
 
 ### Step 2: Scan the codebase
 
@@ -80,6 +90,10 @@ ARCH=$(cat /tmp/ingest-arch.json); SIGNALS=$(cat /tmp/ingest-signals.json)
 
 Together, `ARCH` answers *"what does the code look like now"*, `SIGNALS` answers *"what changed historically and what decisions exist already"*. The LLM combines them.
 
+**Exit criteria:** both JSON documents parse and are non-empty; `ARCH.stacks` is populated.
+**Evidence:** the two file sizes and the detected stack list.
+**Blocker:** empty `stacks` on a project that clearly has code → the scan missed the layout; investigate before synthesising docs from nothing. A scanner that errored is not "an empty project".
+
 ### Step 3: Check existing MemPalace state
 
 Before writing seed records, search the current wing to avoid duplicates:
@@ -96,6 +110,10 @@ Categorise existing records:
 - **Wing actively curated:** ask the user → add only new decisions discovered, or skip seeding.
 
 Path-validation rule applies to every search result — drawers referencing non-existent paths are marked `[STALE]` and excluded.
+
+**Exit criteria:** the wing's current state is classified as empty / stale / curated, and on stale or curated the user has chosen re-seed, add-only-new, or skip.
+**Evidence:** the three search results with counts, and the count of `[STALE]` exclusions.
+**Blocker:** writing into a curated wing without asking. This is a serial gate — Steps 4 and 5 do not start until it is settled.
 
 > **Orchestration (Steps 4 + 5):** once the Step 3 user decision is settled (a serial gate), Steps 4 and 5 are independent — Step 4 writes only `docs/`, Step 5 writes only MemPalace. Dispatch them concurrently: **Step 4 as a `sonnet` subagent** (narrative generation from JSON), **Step 5 on `opus`** (decision extraction is judgment — keep it on the strongest model). The Opus main session merges results and runs Step 6. See `_shared/references/orchestration-conventions.md`. (MemPalace writes inside Step 5 still run `check_duplicate` sequentially — never parallelize writes.)
 
@@ -114,6 +132,10 @@ Do NOT touch:
 - `docs/plans/*`, `docs/testing/*`, `docs/release/*`, `docs/operations/*`, `docs/marketing/*` (these are not architecture)
 
 If `claude_md.exists` is false → also write a minimal `CLAUDE.md` with the Source-of-Truth table pointing at the docs you just wrote. If it already exists, leave it alone (it's a high-touch user document — don't blast it).
+
+**Exit criteria:** `system.md` describes this codebase specifically — its entry points and layout, not a generic stack description; `api.md` and `db-schema.sql` exist exactly when `routes.framework != none` and `schema_files` is non-empty; every pre-existing user-written section survives verbatim.
+**Evidence:** `git diff` on `docs/architecture/` — deletions in a merged file are the thing to look at.
+**Blocker:** any user-edited prose replaced rather than merged. A narrative that would read the same for a different project in the same framework has not been written from `ARCH` — rewrite it.
 
 ### Step 5: Extract MemPalace records
 
@@ -136,6 +158,10 @@ Using `ARCH` + `SIGNALS` together, identify 10–20 records worth seeding. Apply
 
 Before each `mempalace_add_drawer`, run `mempalace_check_duplicate` to avoid pollution. For relationship facts (`module X depends on Y`, `decision D supersedes E`), also call `mempalace_kg_add` with `subject`/`predicate`/`object`.
 
+**Exit criteria:** 10–20 records written, each preceded by its own duplicate check, each carrying information that re-scanning the code would not reveal; every path inside a record exists on disk.
+**Evidence:** counts per room type, duplicates skipped, and the `test -e` result for the paths written.
+**Blocker:** a record that merely restates current code ("the project uses FastAPI" with no rationale) — that is re-derivable and pollutes search. Under 10 usable records is an acceptable outcome; padding to reach 10 is not.
+
 ### Step 6: Verify searchability
 
 Run 3–5 `mempalace_search` queries within the wing to confirm the new records surface for likely future queries. Example:
@@ -145,6 +171,10 @@ Run 3–5 `mempalace_search` queries within the wing to confirm the new records 
 - The project name → returns milestone records
 
 If a record does not surface for an obvious query, rewrite its content with better keywords (the `[WHAT]` line is what the search indexes most heavily) and re-add.
+
+**Exit criteria:** 3–5 queries a future session would plausibly type each return the record they should; failures were fixed by rewriting the record, and re-verified.
+**Evidence:** the query→top-hit pairs, stated in the report as `<passed>/<total>`.
+**Blocker:** reporting a pass rate without running the queries, or choosing queries that quote the record's own wording. The test is whether an unrelated future phrasing finds it.
 
 ### Step 7: Update CLAUDE.md pointer
 
@@ -159,6 +189,10 @@ Last ingested: <YYYY-MM-DD>.
 ```
 
 If a `## Memory` section already exists, update the `Last ingested:` date in place.
+
+**Exit criteria:** `CLAUDE.md` names the wing and today's ingest date, and nothing else in the file changed.
+**Evidence:** `git diff CLAUDE.md` — the diff is confined to the `## Memory` section.
+**Blocker:** rewriting neighbouring sections while editing this one.
 
 ### Step 8: Architect report
 
@@ -188,6 +222,9 @@ Next steps:
 - /vladyslav:add-feature  — build new features with both architecture docs and MemPalace context now ready
 - /vladyslav:write-docs — if user stories / test docs / project docs are needed
 ```
+
+**Exit criteria:** every count in the report is a real number taken from the work done, and every step above either met its criteria or is named here as unmet with the reason.
+**Blocker:** a placeholder left in the report (`<count>`, `<name>`) — it means the step it belongs to was not actually completed.
 
 ---
 

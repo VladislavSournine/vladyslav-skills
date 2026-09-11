@@ -27,6 +27,10 @@ Review Swift and SwiftUI code for correctness, modern API usage, and adherence t
 
 If doing a partial review, load only the relevant reference files.
 
+**Exit criteria:** every reference above was loaded and applied to the reviewed files — or, on a partial review, the skipped ones are named; each finding cites a file, a line, and the rule it violates.
+**Evidence:** the findings list, and the reference files actually consulted.
+**Blocker:** a finding with no rule behind it. This skill reports only genuine problems: an empty result on clean code is the correct output, and padding it with style preferences makes every future run less trustworthy.
+
 
 ## Core Instructions
 

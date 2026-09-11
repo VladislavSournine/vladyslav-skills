@@ -4,6 +4,8 @@ This file contains the Auto-mode-specific instructions for `add-feature`. The or
 
 Manual-mode instructions remain inline in `SKILL.md`. Steps 1-5 and Step 9 are mode-agnostic and live in `SKILL.md` as well.
 
+Each step's exit criteria follow the contract in `<plugin>/skills/_shared/references/exit-criteria.md`. Auto mode removes the *stops*, never the criteria: a step whose criteria are unmet blocks the pipeline exactly as it would in Manual mode — it just escalates to the user instead of waiting for them.
+
 ---
 
 ## Step 6 (Auto): Execute the plan
@@ -36,6 +38,10 @@ For each batch of parallelizable tasks from the plan:
 **Rules that apply to every execution mode:**
 - **Tests and code in parallel** — both derive from the contract (Step 4.5). No "code first, tests after".
 - **Blast Radius Rule** (see `~/.claude/CLAUDE.md`) — smallest justified change, no "while I'm here" refactors, ask the user before expanding scope.
+
+**Exit criteria:** every plan task implemented with its tests; the gate green on each batch; every file touched is on that task's allowlist.
+**Evidence:** the gate JSON per batch; `git diff --stat` per commit; both agents' returns scanned for `SCOPE EXPANSION REQUIRED`.
+**Blocker:** any of the four guard rails, or a batch committed while its gate is red.
 
 ---
 
@@ -79,14 +85,13 @@ Scope failures are questions about *what may change*, not about correctness. The
 
 A scope failure appearing *during* a repair attempt aborts the loop immediately and escalates — repairs never widen scope in order to succeed.
 
-**Forbidden repairs.** A repair attempt must never:
-
-- delete, skip, or `xfail` a failing test
-- weaken an assertion, or narrow its inputs so it stops covering the failure
-- reduce the scope passed to `owasp-security` or the code reviewer
-- add `# noqa`, `eslint-disable`, `@ts-ignore`, or any equivalent suppression
+**Forbidden repairs.** The Anti-gaming list in `<plugin>/skills/_shared/references/exit-criteria.md` applies verbatim to every repair attempt: no deleted or `xfail`-ed tests, no weakened assertions, no narrowed reviewer scope, no suppression pragmas.
 
 Repair means fixing the cause. If the agent concludes the test itself is wrong, that is an **escalation**, not a repair — report it and let the user decide. Do NOT bypass the gate. Do NOT weaken the check ("the test is flaky, let's skip it"). The gate is a contract with the user.
+
+**Exit criteria:** every check green on the code that is about to be committed — not on an earlier state, and not on a narrower scope than Step 6 used.
+**Evidence:** the gate JSON, the reviewer's findings, the security checker's output, all from the current staged diff.
+**Blocker:** any blocker-class finding; a scope failure at any point (immediate escalation, never self-repair); a third repair attempt.
 
 **When the repair budget is spent**, ask: "Auto-gate failure at <step> after 2 repair attempts. <details>. How to proceed? (fix and retry / reopen plan / abort feature)"
 
@@ -100,6 +105,10 @@ The per-commit auto-gate (Step 6.5) already runs the code review agent on each c
 
 If the whole-branch review surfaces issues: dispatch another subagent to fix them (same file-scope constraint as Step 6), re-run auto-gate, then proceed. No user approval needed unless a guard rail triggers.
 
+**Exit criteria:** the whole-branch diff has been reviewed as one unit and its findings are resolved.
+**Evidence:** the review's findings against `git diff main...HEAD`.
+**Blocker:** an unresolved cross-commit finding — partial refactor, dead code left between commits, two commits disagreeing about the same abstraction.
+
 ---
 
 ## Step 8 (Auto): Finish the branch
@@ -107,6 +116,10 @@ If the whole-branch review surfaces issues: dispatch another subagent to fix the
 Merge the feature branch into `dev` (or the project's development branch — detect from `git branch -r` or CLAUDE.md) **automatically, without user approval**. Use a merge commit (not squash) by default so the per-commit history is preserved, unless the project's CLAUDE.md specifies otherwise.
 
 Do **NOT** merge into `main` automatically. Merge-to-main is **approval point #5** — after the report in Step 9, ask the user: "All checks passed, dev branch is updated. Merge to main now? (yes / not yet / never on auto)". On `yes`, merge to main. On `not yet`, leave it on dev and note in the report. On `never on auto`, record a preference memory and never ask again for this project.
+
+**Exit criteria:** the feature is on the development branch and `main` is untouched unless the user said yes.
+**Evidence:** the merge commit sha; `git log --oneline main..dev`.
+**Blocker:** an automatic merge to `main` under any reasoning. "All checks passed" is precisely the state in which this rule applies.
 
 ---
 

@@ -1,6 +1,8 @@
 # add-feature lifecycle
 
-Manual і Auto modes в одному потоці. 5 approval points, 4 guard rails. Стан зберігається автоматично через compact-save (PreCompact hook).
+Manual і Auto modes в одному потоці. 8 approval points, 4 guard rails. Стан зберігається автоматично через compact-save (PreCompact hook).
+
+З v6.0.0 обидва режими викликають під-скіли самі, через `Skill` — режим визначає лише де потік зупиняється на апрув. Кожен Step має власні exit criteria (`skills/_shared/references/exit-criteria.md`); крок із невиконаними критеріями блокує наступний в обох режимах.
 
 ```mermaid
 flowchart TD
@@ -26,7 +28,7 @@ flowchart TD
     AP4 --> S6[Step 6 — Execute]
     S6 --> Q2{Manual or Auto?}
 
-    Q2 -- Manual --> M1["/superpowers:dispatching-parallel-agents<br/>or executing-plans"]
+    Q2 -- Manual --> M1["Skill → dispatching-parallel-agents<br/>/ subagent-driven-development<br/>/ executing-plans<br/>+ per-chunk code review"]
     Q2 -- Auto --> AL["Auto-loop<br/>2 subagents in parallel<br/>(tests + impl) per task<br/>scoped to plan's file list"]
 
     AL --> GR{Guard rails<br/>files outside plan &gt; 2?<br/>read-only file refactored?<br/>contract hash changed?<br/>SCOPE EXPANSION REQUIRED?}

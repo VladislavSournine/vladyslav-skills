@@ -107,6 +107,36 @@ check_agent_model() { # name, file
   ' "$f")
 }
 
+check_exit_criteria() { # name, file
+  # Every numbered Step heading must declare what the step must leave behind
+  # before the next heading starts. See skills/_shared/references/exit-criteria.md.
+  # Matches "## Step 3:" / "### Step 0.5:" — NOT a bare "## Steps" section
+  # heading, hence the required digit after "Step".
+  # A step ends at the next heading of the SAME OR HIGHER level, so a step may
+  # own deeper sub-headings (#### Group A) and still declare its criteria at the
+  # end. Headings inside fenced code blocks are template content (a generated
+  # ROADMAP.md, a report format) and never close a step.
+  local name="$1" f="$2" start
+  [ -f "$f" ] || return
+  while IFS= read -r start; do
+    err "$name: Step heading without **Exit criteria:** (line $start)"
+  done < <(awk '
+    function flush() { if (instep && !hascrit) print start; instep=0; hascrit=0 }
+    /^[[:space:]]*```/ { fence = !fence; next }
+    fence { next }
+    /^#+[[:space:]]/ {
+      match($0, /^#+/); lvl = RLENGTH
+      if (instep && lvl <= steplvl) flush()
+      if ($0 ~ /^##+[[:space:]]+Step[[:space:]]+[0-9]/) {
+        instep=1; start=NR; steplvl=lvl; hascrit=0
+      }
+      next
+    }
+    instep && /^\*\*Exit criteria:\*\*/ { hascrit=1 }
+    END { flush() }
+  ' "$f")
+}
+
 check_orphan_references() {
   # Every references/*.md under skills/ (incl. _shared) must have at least
   # one consumer. Consumers are SKILL.md files, commands/*.md, scripts, or
@@ -157,6 +187,7 @@ main() {
   check_orphan_commands
   for_each_skill check_crossrefs
   for_each_skill check_agent_model
+  for_each_skill check_exit_criteria
   check_orphan_references
   check_mempalace_readme
   if [ "$fail" -ne 0 ]; then printf -- '--- validate-skills: FAILURES found\n'; exit 1; fi

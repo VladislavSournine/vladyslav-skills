@@ -7,120 +7,103 @@ description: Use when adding a feature to a production project. Full cycle: brai
 
 ## Overview
 
-Full-cycle feature addition: idea → design → plan → implement → docs. Orchestrates superpowers skills in the right order with project-specific reminders.
+Full-cycle feature addition: idea → design → plan → implement → docs. Orchestrates superpowers skills in the right order and owns the gates between them.
 
 **Type:** Architect
+
+Every step declares what must be true before the next one starts, per `<plugin>/skills/_shared/references/exit-criteria.md` — including its anti-gaming rules, which bind every subagent and every repair attempt in this skill.
+
+**This skill invokes the skills it needs via the `Skill` tool, in both modes.** Mode controls where it *stops for approval*, never who runs the sub-skill.
 
 ## Process
 
 ### Step 0.1: Verify working directory
 
-Apply the verify-working-directory contract from `<plugin>/skills/_shared/references/verify-pwd.md`: confirms CLAUDE.md exists, derives the canonical MemPalace wing name, warns on stale-wing duplicates, and establishes the mandatory path-validation rule for the rest of this skill's MemPalace reads.
+Apply the verify-working-directory contract from `<plugin>/skills/_shared/references/verify-pwd.md`. If `CLAUDE.md` is missing, apply `<plugin>/skills/_shared/references/self-heal-shell.md` rather than dead-ending.
 
-**If `CLAUDE.md` is missing, do not dead-end** — apply `<plugin>/skills/_shared/references/self-heal-shell.md` to offer an inline shell bootstrap, then continue. Only STOP if the user declines.
-
-Additionally, read the project name from `CLAUDE.md` (first heading or `# <ProjectName>` line).
+**Exit criteria:** `CLAUDE.md` confirmed present; project name extracted from it; canonical MemPalace wing derived; the path-validation rule in force for this skill's MemPalace reads.
+**Evidence:** project name and wing, stated in one line.
+**Blocker:** user declines the bootstrap → STOP.
 
 ### Step 0.5: Choose mode
 
-Ask the user: **"Manual mode or Auto mode?"**
+Ask: **"Manual mode or Auto mode?"**
 
-- **Manual** (default, safest) — the historic flow: stop after each phase and tell the user to run `/superpowers:<name>` in their terminal. Use when the feature is unusual, high-risk, or you want tight control.
-- **Auto** — after approving the contract and the plan, I run execution, code review, security check, tests, commits, docs update, and merge-to-dev **without further stops**, except when a guard rail triggers. Use for routine features where the contract is clear.
-
-Record the chosen mode for the rest of the flow.
-
-Do **not** default to Auto silently. The mode must come from an explicit user answer — but that answer may have been given one level up: if `vladyslav:orchestrate` routed here and already asked, it passes the mode down, and that satisfies this requirement. Asking again is a bug, not extra safety. Ask here only when no mode was supplied.
+- **Manual** (default, safest) — approval stop after every phase. Use when the feature is unusual, high-risk, or you want tight control.
+- **Auto** — after the contract and plan are approved, execution, review, security, tests, commits, docs and merge-to-dev run without further stops, except on a guard rail.
 
 **Auto-mode guard rails (automatic STOP + ask):**
-- More than **2 files touched outside the approved plan** (new files not in the plan)
-- **Any existing file refactored outside the plan** (refactor of a file that was "read-only reference" → STOP, regardless of size)
-- **Contract or spec changed during execution** (the contract file from Step 4.5 has been modified)
-- **Pre-commit auto-gate failure** (see Steps 6/6.5) — *quality* failures (tests, hygiene, code review, security) get up to **2 automatic repair attempts** first; *scope* failures (contract changed, read-only file touched, >2 files outside plan) escalate immediately. Escalation happens only after the repair budget is spent
+- More than **2 files touched outside the approved plan**
+- **Any file marked "read-only reference" modified** — regardless of size
+- **Contract changed during execution**
+- **Pre-commit auto-gate failure** — *quality* failures get up to 2 repair attempts first; *scope* failures escalate immediately
 
-Any guard rail → stop, report the situation to the user, ask what to do. Do NOT attempt to work around a guard rail silently.
+**Exit criteria:** the mode is recorded and came from an explicit user answer — or was passed down by `vladyslav:orchestrate`, which already asked.
+**Blocker:** defaulting to Auto silently. Asking again when the orchestrator already supplied a mode is a bug, not extra safety.
 
 ### Step 1: Read project context
 
-Read these files before anything else (independent reads — fetch them in one parallel batch). For subagent dispatch, model tiers, and parallelism-safety rules used throughout this skill, see `_shared/references/orchestration-conventions.md`.
-- `CLAUDE.md`
-- `docs/architecture/system.md`
-- `docs/architecture/api.md` (if exists)
-- `docs/product/prd.md`
-- `docs/plans/tasks.md`
+Read in one parallel batch: `CLAUDE.md`, `docs/architecture/system.md`, `docs/architecture/api.md` (if present), `docs/product/prd.md`, `docs/plans/tasks.md`. Dispatch mechanics: `_shared/references/orchestration-conventions.md`.
 
-> **Optional CodeGraph:** when exploring the codebase for context (here and during brainstorming/planning), prefer CodeGraph per `<plugin>/skills/_shared/references/codegraph.md` if available — `impact` on affected symbols helps predict the plan's file list for the Step 5 guard rails. Falls back to grep/LSP when absent.
+> **Optional CodeGraph:** when exploring the codebase (here and during brainstorming/planning), prefer CodeGraph per `<plugin>/skills/_shared/references/codegraph.md` if available — `impact` on affected symbols helps predict the plan's file list for the Step 5 guard rails.
+
+**Exit criteria:** every file that exists has been read in full; missing ones noted rather than assumed empty.
+**Blocker:** no `docs/architecture/` at all → suggest `/vladyslav:ingest` first.
 
 ### Step 2: Get feature description
 
-Ask the user to describe the feature they want to add. Free text.
+Ask the user to describe the feature. Free text.
 
-### Step 3: Create worktree (optional)
+**Exit criteria:** the feature is stated as an observable capability a user gains, not as an implementation ("users can reset their password by email", not "add a reset endpoint"). This is **approval point #1**.
+**Blocker:** a description that cannot be turned into an acceptance check → ask what the user should be able to do afterwards.
 
-**Manual mode:**
-⏸ Stop. Tell the user:
-"Step 3 complete. Now run /superpowers:using-git-worktrees in your terminal.
-When done, come back and say 'done' to continue."
+### Step 3: Create worktree
 
-**Auto mode:**
-Invoke the `superpowers:using-git-worktrees` skill via the Skill tool to create a `feature/<feature-name>` worktree directly. If the project does not use git worktrees (e.g. not a git repo or user opted out in CLAUDE.md), create a regular `feature/<feature-name>` branch via `git checkout -b`. Record the branch name for later steps.
+Invoke `superpowers:using-git-worktrees` via the `Skill` tool to create a `feature/<feature-name>` worktree. If the project does not use worktrees (not a git repo, or opted out in `CLAUDE.md`), create a regular `feature/<feature-name>` branch.
+
+**Exit criteria:** work is isolated on a feature branch or worktree, and its name is recorded for later steps.
+**Evidence:** `git branch --show-current`.
 
 ### Step 4: Design the feature
 
-**Existing roadmap check (both modes):**
-Before starting brainstorming, check for an existing roadmap in two locations (in order):
-1. `docs/roadmap/` — look for a `.md` file whose slug matches the feature name from Step 2 (lowercased, hyphens-normalized)
-2. `ROADMAP.md` at the project root — check if it exists and contains phases with unchecked items relevant to this feature
+**Existing roadmap check (both modes).** Before brainstorming, look for an existing roadmap: `docs/roadmap/<slug>.md` matching the feature name (lowercased, hyphens-normalized), then `ROADMAP.md` at the project root with unchecked items relevant to this feature. On a match, ask:
 
-If a match is found in either location, ask:
 > "Знайшов роадмап `<slug>`. Продовжуємо з наступної незакінченої фази?"
-- **Yes** → skip brainstorming (Step 4). Load the roadmap file, identify the first phase with unchecked items, pass those items as the scope to Step 4.5. In Step 4.5, write a focused contract scoped to that phase only (not the full feature), then continue normally to Step 4.7 and Step 5. Record that this run is a phase continuation.
-- **No** → proceed with normal brainstorming as if no roadmap exists.
 
-**Manual mode:**
-⏸ Stop. Tell the user:
-"Step 4 complete. Now run /superpowers:brainstorming in your terminal.
-When done, come back and say 'done' to continue."
+- **Yes** → skip brainstorming. Load the roadmap, take the first phase with unchecked items as the scope for Step 4.5, and record that this run is a phase continuation. The contract in Step 4.5 covers **that phase only**.
+- **No** → normal brainstorming.
 
-**Auto mode:**
-Invoke the `superpowers:brainstorming` skill via the Skill tool with the feature description from Step 2 plus the project context from Step 1. Capture the brainstorm output (design doc, key decisions, MVP cut).
+Otherwise invoke `superpowers:brainstorming` via the `Skill` tool with the Step 2 description plus the Step 1 context, then present the result:
 
-Present the output to the user and ⏸ **stop for approval**:
-"Here's the brainstorm result: <summary>. Approve to continue, reopen to iterate, or abort?"
+> "Here's the brainstorm result: <summary>. Approve to continue, reopen to iterate, or abort?"
 
-This is **approval point #2** (first was the feature description in Step 2). Do NOT proceed to the contract until the user says approve.
+**Exit criteria:** a design exists that names the components to be built and the MVP cut, and the user approved it — **approval point #2**. On the roadmap path: the phase's task list is loaded and recorded instead.
+**Evidence:** the design doc path or the captured summary; on the roadmap path, the roadmap file and phase name.
+**Blocker:** proceeding to the contract without approval.
 
 ### Step 4.5: Define contract
 
-Before planning, write down the contract explicitly (3-10 lines is enough):
-- Types / function signatures / API schema
-- 1 input/output example
-- Known error cases / edge cases
+Write the contract explicitly, 3-10 lines: types / signatures / API schema · one input-output example · known error and edge cases. Save it inside the Step 4 design doc or as `docs/plans/<feature>-contract.md`.
 
-The contract is the alignment point between intent, code, and tests. Skipping it means tests will end up verifying what you wrote, not what you intended.
+The contract is the alignment point between intent, code, and tests. Without it, tests verify what was written rather than what was intended.
 
-Save the contract as a section inside the design doc from Step 4, or as a separate file `docs/plans/<feature>-contract.md`.
+**Both modes:** present it and stop — **approval point #3**. It is 3-10 lines; read it out in full.
 
-**Both modes:** Present the contract to the user and ⏸ **stop for approval** — this is **approval point #3**. Read the contract out loud (it's 3-10 lines, trivial to verify). Do not proceed until the user approves.
+**Auto mode:** after approval, record the baseline for the contract-drift guard rail: `sha256sum <contract path> | awk '{print $1}' > <contract path>.sha256` (`shasum -a 256` on stock macOS). The Step 6 gate (`quality-gate.sh` → `check-plan-scope.sh`) compares against this file and STOPs if the contract drifted mid-execution. Delete the `.sha256` after the last batch — it is gate plumbing, not a deliverable.
 
-**Auto mode:** After approval, record the contract baseline for the "contract changed during execution" guard rail: `sha256sum <contract path> | awk '{print $1}' > <contract path>.sha256` (use `shasum -a 256` where `sha256sum` is unavailable, e.g. stock macOS). The gate in Step 6 (`quality-gate.sh` → `check-plan-scope.sh`) compares against this file; if the contract drifts during execution, it triggers a STOP. Delete the `.sha256` file after the last batch — it is gate plumbing, not a deliverable.
+**Exit criteria:** the contract file exists at a recorded path, the user approved it verbatim, and (Auto) its hash baseline is written.
+**Evidence:** the contract path; the `.sha256` file in Auto mode.
+**Blocker:** entering planning without an approved contract. A contract that names no error cases is incomplete — tests derived from it will only cover the happy path.
 
 ### Step 4.7: Roadmap gate
 
-**Applies to:** both modes. Runs after contract approval, before writing-plans.
+**Applies to:** both modes, after contract approval, before planning.
 
-Assess whether the feature is multi-phase using **any one** of:
-- Design from Step 4 has ≥3 distinct components/subsystems
-- Design from Step 4 implies ≥5 major tasks
-- User language in Step 2 signals phasing: "поетапно", "спочатку X потім Y", "фази", "поступово", "gradually", "phases", "step by step"
+The feature is multi-phase if **any one** holds: the design has ≥3 distinct components/subsystems · it implies ≥5 major tasks · the user's language signals phasing ("поетапно", "спочатку X потім Y", "фази", "поступово", "gradually", "phases", "step by step").
 
-If any condition is true, ask:
-> "Ця фіча виглядає багатофазно — є сенс розбити на фази з роадмапом перед тим як писати детальний план. Зробити?"
+If so, ask: "Ця фіча виглядає багатофазно — є сенс розбити на фази з роадмапом перед тим як писати детальний план. Зробити?"
 
-**If yes:**
-1. Create `docs/roadmap/` directory if it does not exist.
-2. If a file `docs/roadmap/<feature-slug>.md` already exists, ask: "Роадмап для `<slug>` вже існує. Перезаписати чи зберегти старий і створити `<slug>-v2.md`?" — on overwrite, replace the file; on "v2", write to `<slug>-v2.md` and use that filename for all subsequent references in this run.
-3. Generate `docs/roadmap/<feature-slug>.md` using this format:
+**If yes:** write `docs/roadmap/<feature-slug>.md` (slug = feature name lowercased, spaces → hyphens; "User Authentication" → `user-authentication`). If that file already exists, ask whether to overwrite or write `<slug>-v2.md`, and use the chosen name for the rest of the run. Format:
 
 ```markdown
 # Roadmap: <Feature Name>
@@ -142,119 +125,85 @@ If any condition is true, ask:
 <!-- Add Phase 3, 4… as needed — one phase per logical milestone -->
 ```
 
-4. Commit: `git add docs/roadmap/<feature-slug>.md && git commit -m "docs: add roadmap for <feature-slug>"`
-5. Pass **only Phase 1 tasks** as the scope to writing-plans in Step 5.
+Commit it: `git add <roadmap-file> && git commit -m "docs: add roadmap for <feature-slug>"`. Only Phase 1 goes to Step 5 as scope.
 
-**`<feature-slug>` derivation:** feature name from Step 2, lowercased, spaces replaced with hyphens. Example: "User Authentication" → `user-authentication`.
-
-**If no (or gate did not fire):**
-Proceed to Step 5 with the full feature scope as before. No file is created.
+**Exit criteria:** either the gate did not fire and no file was created, or the roadmap is committed, every phase has a one-sentence `**Done when:**`, and Phase 1's tasks are recorded as the plan scope — **approval point #8**.
+**Evidence:** the roadmap path and commit sha.
+**Blocker:** a phase whose `**Done when:**` restates its task list instead of naming an outcome — rewrite it before committing.
 
 ### Step 5: Create implementation plan
 
-After the contract (Step 4.5) is locked:
+Invoke `superpowers:writing-plans` via the `Skill` tool, feeding it the contract and the design. On the roadmap path, pass Phase 1 as a hard scope constraint — the plan implements Phase 1 only.
 
-**Manual mode:**
-⏸ Stop. Tell the user:
-"Step 5 complete. Now run /superpowers:writing-plans in your terminal.
-When done, come back and say 'done' to continue."
+The plan must state, per task: which contract piece it implements, and **which files it will create or modify**. That file list is the baseline for the scope guard rails.
 
-**Auto mode:**
-Invoke the `superpowers:writing-plans` skill via the Skill tool, feeding it the contract + brainstorm output. Capture the plan — it must list each bite-sized task, which contract piece it implements, and (crucially) **which files each task will create or modify**. The file list is the baseline for the "files touched outside plan" guard rail. If a roadmap was created in Step 4.7, pass the Phase 1 task list as the scope constraint — writing-plans must produce a plan that implements Phase 1 only, not the full feature.
+> **Tests mandate (both modes):** every task includes writing tests *alongside* implementation, derived from the contract. Not deferred to the end.
 
-Present the plan to the user and ⏸ **stop for approval** — this is **approval point #4**. Show:
-- Task list (numbered)
-- Files that will be created (new)
-- Files that will be modified (existing)
-- Files that are "read-only reference" (must NOT be refactored during execution)
+Present the plan and stop — **approval point #4**. Show: numbered tasks · files created (new) · files modified (existing) · files that are read-only reference and must not be refactored.
 
-Do not proceed to Step 6 until the user approves. Record the file lists — main thread will enforce them as guard rails.
-
-Each task in the plan must reference which part of the contract it implements.
-
-> **Tests mandate (both modes):** Every task in the plan must include a "Write tests" sub-step *alongside* implementation — not deferred to after the feature is complete. Tests derive from the contract (Step 4.5). Remind the user of this rule before finalizing the plan.
+**Exit criteria:** an approved plan whose every task names its contract piece, its file list, and its tests; the three file lists are recorded as guard-rail baselines.
+**Evidence:** the plan document; the recorded file lists.
+**Blocker:** a plan task with no test sub-step, or with no file list — both make the Step 6 guard rails unenforceable. Send it back rather than filling the gaps by guessing.
 
 ### Step 6: Execute the plan
 
-> **Auto mode:** Steps 6, 6.5, 7, and 8 below have an Auto-mode counterpart. If the user chose Auto in Step 0.5, read `<plugin>/skills/add-feature/references/auto-mode.md` and follow its instructions for Steps 6, 6.5, 7, and 8 instead of the Manual blocks below. Step 9 (post-implementation) is mode-agnostic and stays inline. The Manual blocks below are the default reading path.
+> **Auto mode:** read `<plugin>/skills/add-feature/references/auto-mode.md` and follow its Steps 6, 6.5, 7, 8 instead of the blocks below. Step 9 is mode-agnostic.
 
-**Manual mode:**
+**Manual mode.** Ask which execution approach, recommending parallel agents by default, and invoke it via the `Skill` tool:
 
-Ask the user which execution approach. **Parallel agents is recommended by default.**
+| Approach | Skill |
+|---|---|
+| Parallel agents (recommended) | `superpowers:dispatching-parallel-agents` |
+| Subagent-driven, this session | `superpowers:subagent-driven-development` |
+| Sequential execution | `superpowers:executing-plans` |
 
-- **Parallel agents (recommended):**
-  ⏸ Stop. Tell the user:
-  "Step 6 complete. Now run /superpowers:dispatching-parallel-agents in your terminal.
-  When done, come back and say 'done' to continue."
+Rules that apply to every execution mode:
+- **Tests and code together** — both derived from the contract. No "code first, tests after".
+- **Blast Radius Rule** — smallest justified change, no "while I'm here" refactors, ask before expanding scope.
 
-- **Subagent-driven (this session):**
-  ⏸ Stop. Tell the user:
-  "Step 6 complete. Now run /superpowers:executing-plans in your terminal.
-  When done, come back and say 'done' to continue."
+**After each chunk/phase — not only at the end** — dispatch a focused review via the `Agent` tool: `subagent_type: "pr-review-toolkit:code-reviewer"`, `model: "sonnet"`, scoped to what that chunk changed. Fix its findings inside the same chunk. In Manual mode, stop for the user after each chunk's review is clean.
 
-- **Parallel session:**
-  ⏸ Stop. Tell the user:
-  "Step 6 complete. Now run /superpowers:executing-plans in a new terminal.
-  When done, come back and say 'done' to continue."
-
-**Rules that apply to every execution mode:**
-- **Tests and code in parallel** — both derive from the contract (Step 4.5). No "code first, tests after".
-- **Blast Radius Rule** (see `~/.claude/CLAUDE.md`) — smallest justified change, no "while I'm here" refactors, ask the user before expanding scope.
-
-**Manual mode — PR review after each chunk:**
-
-After **each chunk/phase** of the plan completes (not just at the very end):
-
-⏸ Stop. Tell the user:
-"Chunk complete. Run /pr-review-toolkit:code-reviewer now for a focused review of what was just implemented.
-This is mandatory — do not skip. When done, come back and say 'done' to continue to the next chunk."
-
-If the reviewer returns feedback → fix issues in the same chunk before moving on. Do NOT accumulate technical debt across chunks.
-
-Repeat this step after each chunk until all chunks are done.
+**Exit criteria:** every plan task is implemented with its tests; each chunk was reviewed and its HIGH findings resolved before the next chunk started; the files touched match the Step 5 lists.
+**Evidence:** `git diff --stat` against the branch point; the per-chunk review dispositions; a green test run.
+**Blocker:** carrying a chunk's unresolved findings into the next chunk. Any file touched outside the plan's lists, or any read-only-reference file modified → stop and ask; that is the user's call under the Scope Sentinel, not a judgment to absorb silently.
 
 ### Step 7: Final code review (Manual mode)
 
-After ALL chunks are complete, run the deterministic gate on the branch before any reviewer looks at it:
+Run the deterministic gate on the whole branch first, so review time goes to design rather than mechanics:
 
-`bash <plugin>/scripts/quality-gate.sh --pwd . --base $(git merge-base HEAD <dev-branch>) --test-cmd "<project test command>"`
+```bash
+bash <plugin>/scripts/quality-gate.sh --pwd . --base $(git merge-base HEAD <dev-branch>) --test-cmd "<project test command>"
+```
 
-Fix and re-run until it exits 0 — it catches the mechanical failures (failing tests, debug leftovers, conflict markers, credential-shaped strings) so review time is spent on design, not noise.
+Then invoke `superpowers:requesting-code-review` via the `Skill` tool for a full-feature review, and `superpowers:receiving-code-review` to process the feedback with verification rather than agreement.
 
-Then ⏸ Stop. Tell the user:
-"Step 7 complete. Now run /superpowers:requesting-code-review in your terminal for a final full-feature review.
-When done, come back and say 'done' to continue."
-
-If feedback is received:
-
-⏸ Stop. Tell the user:
-"Step 7 complete. Now run /superpowers:receiving-code-review in your terminal to process the feedback.
-When done, come back and say 'done' to continue."
+**Exit criteria:** the gate exits 0 on the full branch diff; a reviewer has seen the whole feature; every HIGH finding is resolved or explicitly accepted by the user.
+**Evidence:** the gate's exit code and JSON; the findings list with a disposition per item.
+**Blocker:** a red gate, or an unresolved HIGH finding. Neither is cleared by re-running the reviewer on a narrower diff.
 
 ### Step 8: Finish the branch (Manual mode)
 
-⏸ Stop. Tell the user:
-"Step 8 complete. Now run /superpowers:finishing-a-development-branch in your terminal.
-When done, come back and say 'done' to continue."
+Invoke `superpowers:finishing-a-development-branch` via the `Skill` tool.
+
+**Exit criteria:** the feature is merged to the development branch, or a PR against `develop` is open, per the user's choice.
+**Evidence:** merge commit sha or PR URL.
+**Blocker:** merging to `main` without explicit approval — that is **approval point #5**, and PRs target `develop` (see `~/.claude/CLAUDE.md`).
 
 ### Step 9: Post-implementation
 
-After merge (both modes — auto does this without stopping, manual requires the user to confirm merge happened):
+After merge, in both modes (Auto does this without stopping; Manual confirms the merge happened first):
 
-1. **Update roadmap (if applicable):** If a roadmap file was used in this run (created in Step 4.7 or loaded via the resume path in Step 4):
-   - Open the roadmap file (`docs/roadmap/<slug>.md` or `ROADMAP.md` — whichever was used)
-   - Find the phase that was just implemented
-   - Replace `- [ ]` with `- [x]` for every task that was completed
-   - If all tasks in the phase are now checked, add `**Status: Complete ✓**` on the line immediately after the `**Done when:**` line
-   - Commit: `git add <roadmap-file> && git commit -m "docs: mark Phase N complete in <slug> roadmap"`
-   - If no roadmap was used in this run, skip this step entirely.
-2. Update `docs/product/user-stories.md` — add the new feature as a story
-3. Update `docs/architecture/api.md` — if any endpoints changed
-4. Update `docs/plans/tasks.md` — mark completed tasks
-5. Write a MemPalace `decision` record to the project wing: `[WHAT] feature <name> implemented, [CONTRACT] <path>, [FILES] <list>, [DATE] <today>`
-6. **Auto mode:** run `git diff --stat main...HEAD` to produce the blast-radius summary for the report (files touched vs plan)
+1. **Roadmap**, if one was used in this run: the implemented phase's completed tasks are checked off, and a phase with everything checked is marked `**Status: Complete ✓**`. Commit: `docs: mark Phase N complete in <slug> roadmap`. No roadmap in this run → skip.
+2. `docs/product/user-stories.md` — the feature added as a story
+3. `docs/architecture/api.md` — if any endpoints changed
+4. `docs/plans/tasks.md` — completed tasks marked
+5. **MemPalace `decision` record** in the project wing, after `mempalace_check_duplicate`: `[WHAT] feature <name> implemented, [CONTRACT] <path>, [FILES] <list>, [DATE] <today>`
 
-Print architect report:
+**Exit criteria:** the roadmap (if any) reflects reality; all four docs updated or each skipped one named with a reason; the palace record written or its failure reported.
+**Evidence:** the paths committed; `git diff --stat main...HEAD` for the blast-radius line; the drawer id.
+**Blocker:** none blocks the release — but a skipped update is reported, never dropped silently.
+
+Print the architect report:
 
 ```
 ✓ Architect report:
@@ -281,6 +230,9 @@ Do NOT add translations — wait for pre-release-check phase.
 Next steps:
 - `/vladyslav:write-docs` — generate test plan + QA checklist (tests mode) or update user stories (stories mode)
 - `/vladyslav:pre-release-check` — pre-release verification
+
+**Exit criteria for the run as a whole:** every step above either met its criteria or is named in the report as unmet, with the reason.
+**Blocker:** reporting clean success while any step's criteria went unmet.
 
 ## Auto-mode reference
 

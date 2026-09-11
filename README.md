@@ -71,7 +71,7 @@ Run any skill from a single Opus session. No manual `/model` switching required.
 | `/vladyslav:add-feature` | Add feature (full cycle, 9 superpowers) |
 | `/vladyslav:fix-bug` | Fix bug (full cycle, 7 superpowers) |
 | `/vladyslav:swiftui-pro` | SwiftUI/Swift code review for iOS 26 / Swift 6.2 best practices |
-| `/vladyslav:smoke-test-skills` | Batch-validate all plugin skills (frontmatter, command delegation, cross-references, Architect model= rule, orphan references, README↔MemPalace sync) |
+| `/vladyslav:smoke-test-skills` | Batch-validate all plugin skills (frontmatter, command delegation, cross-references, Architect model= rule, exit criteria on every Step, orphan references, README↔MemPalace sync) |
 
 **Engineer (light) — bash-driven:**
 
@@ -112,6 +112,24 @@ write-docs (all) → pre-release-check
 fix-bug → write-docs → pre-release-check
 ```
 
+## How a skill step is written (v6.0.0)
+
+Every numbered step in every skill declares the state it must leave behind, not the keystrokes that get there:
+
+```markdown
+### Step 5: Regression test + fix
+
+**Exit criteria:** a test exists that fails on the unfixed code and passes on the fixed code;
+the full suite is green; the diff touches only the files declared in Step 4.5.
+**Evidence:** `quality-gate.sh` exits 0; the regression test's `file::name`; `git diff --stat`.
+**Blocker:** the new test passes against the *unfixed* code → it does not reproduce the bug,
+whatever else it asserts.
+```
+
+`**Exit criteria:**` is mandatory and enforced — `scripts/validate-skills.sh` fails any `Step` heading without one. `**Evidence:**` and `**Blocker:**` are included wherever they carry weight.
+
+The full contract, including the **Anti-gaming** list that binds every subagent and every self-repair attempt, is in `skills/_shared/references/exit-criteria.md`. Read it before editing or adding a skill.
+
 ## Stack Support
 
 **Backend:** `python` (default), `go`, `other`, `none`
@@ -136,7 +154,7 @@ All 13 non-meta superpowers skills are integrated:
 | `requesting-code-review` | `add-feature`, `fix-bug` | After implementation |
 | `receiving-code-review` | `add-feature`, `fix-bug` | Process feedback |
 | `finishing-a-development-branch` | `add-feature`, `fix-bug` | Merge/PR |
-| `verification-before-completion` | `pre-release-check` | Evidence-based checks |
+| `verification-before-completion` | `pre-release-check` (Step 2.5) | Confirms each result traces to output observed this run, before the verdict is printed |
 | `writing-skills` | (meta) | Edit vladyslav skills |
 
 ### Session Continuity
