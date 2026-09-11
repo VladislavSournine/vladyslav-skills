@@ -1,5 +1,22 @@
 # Changelog
 
+## v6.0.0
+
+**BREAKING:** every skill's step contract changed shape. Skills now declare what each step must *leave behind* (exit criteria + evidence + blockers) rather than narrating how to perform it. A skill file edited against the old shape will fail `validate-skills.sh`.
+
+### Added
+- **`skills/_shared/references/exit-criteria.md`** — the canonical step contract: `**Exit criteria:**` (mandatory) / `**Evidence:**` / `**Blocker:**`, the rules for writing each, and a single **Anti-gaming** list (no deleted or `xfail`-ed tests, no weakened assertions, no narrowed reviewer scope, no suppression pragmas, no loosened restatement of the criterion). Concluding a criterion is wrong is an escalation to the user, never a self-applied repair.
+- **`validate-skills.sh` check G — exit criteria** — every numbered `Step` heading in a `SKILL.md` must declare `**Exit criteria:**` before the next heading of the same or higher level. Level-aware (a step may own `####` sub-headings) and fence-aware (headings inside a ```` ```markdown ```` template block are content, not section breaks). 6 new tests; suite is 32/32.
+- **`pre-release-check` Step 2.5** — invokes `superpowers:verification-before-completion` before the verdict is rendered. README and SkillsManual have claimed this dependency since v4.x; it was never wired to anything.
+
+### Changed
+- **All 13 skills rewritten to the exit-criteria shape.** Each step states the observable state that must hold, the artifact or command that proves it, and the conditions that forbid proceeding.
+- **`add-feature`: Manual mode no longer hands off to the terminal.** The 13 `⏸ Stop. Tell the user: "run /superpowers:<name> in your terminal"` blocks are gone — the skill invokes sub-skills via the `Skill` tool in both modes, as Auto mode always did. Manual vs Auto now controls **where the run stops for approval**, not who launches the sub-skill. Approval points are unchanged (8 in Auto's map).
+- **`orchestrate`: the quality mandate is now an evidence table** — each mandated item pairs with what proves it happened. "The reviewer was invoked" and "the findings were resolved" are different claims.
+- **Micro-procedural instructions replaced by result statements** — e.g. `add-feature` Step 9 said which characters to replace in a roadmap checkbox and where to insert the status line; it now states the file state the step must produce.
+- **Paraphrases of delegated skills removed** — `fix-bug` no longer summarises what `systematic-debugging` does internally, and no longer restates the TDD loop that `test-driven-development` owns.
+- **`auto-mode.md`'s "Forbidden repairs" list** now points at the shared Anti-gaming list instead of carrying its own copy; the auto-specific escalation rule stays inline.
+
 ## v5.1.0
 
 ### Added

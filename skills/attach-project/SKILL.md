@@ -47,6 +47,12 @@ Collect inputs that the scaffolder can't auto-detect.
 
 7. **Resolve plugin root.** Same approach as `init-project`: Glob `~/.claude/plugins/cache/vladyslav-marketplace/vladyslav/*/scripts/attach-project.sh` and take the directory two levels up. Fall back to `/Volumes/DevSSD/Development/vladyslav-skills` (dev clone).
 
+**Exit criteria:** this is an existing project (git repo or a language manifest is present); detected stacks were shown to the user and confirmed or extended; domain and private-mode answered; `<plugin-root>/scripts/attach-project.sh` is executable.
+**Evidence:** the `detect-stack.sh` JSON, and the four answers.
+**Blocker:** an empty directory → STOP and suggest `/vladyslav:init-project`. Guessing an undetected stack instead of asking.
+
+Steps below follow the exit-criteria contract in `<plugin>/skills/_shared/references/exit-criteria.md`.
+
 ### Step 1: Run the scaffolder
 
 Execute (via the Bash tool):
@@ -78,6 +84,10 @@ The script emits JSON:
 
 Capture this output.
 
+**Exit criteria:** `status: success`; every path in `files_skipped` is byte-identical to what it was before the run; `.gitignore` gained only new lines.
+**Evidence:** the JSON, and `git status --porcelain` — pre-existing tracked files show no modification except the `.gitignore` append.
+**Blocker:** any pre-existing file overwritten. This skill's entire contract is never-overwrite; a rerun that clobbers is worse than a rerun that does nothing.
+
 ### Step 2: Present summary
 
 Parse the JSON. Render to the user:
@@ -99,6 +109,9 @@ Parse the JSON. Render to the user:
 ✗ attach-project failed
   Error: <error from JSON>
 ```
+
+**Exit criteria:** the counts shown match the JSON arrays, and preserved files are named rather than summarised as "some files existed".
+**Blocker:** presenting `status: error` as a partial success.
 
 ---
 

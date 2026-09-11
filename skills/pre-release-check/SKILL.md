@@ -26,6 +26,12 @@ This was a Heavy Engineer skill until v3.1.0. The dispatched Sonnet subagent spe
 
 3. **Resolve plugin root.** Glob `~/.claude/plugins/cache/vladyslav-marketplace/vladyslav/*/scripts/pre-release-checks.sh` and take the directory two levels up. Fall back to `/Volumes/DevSSD/Development/vladyslav-skills` (dev clone).
 
+**Exit criteria:** `CLAUDE.md` and `docs/plans/tasks.md` both present (the latter possibly as a just-created stub the user approved); `<plugin-root>/scripts/pre-release-checks.sh` executable.
+**Evidence:** the two paths, and `test -x` on the script.
+**Blocker:** a missing `tasks.md` silently treated as "no outstanding tasks" — that inverts the check this skill exists to run.
+
+Steps below follow the exit-criteria contract in `<plugin>/skills/_shared/references/exit-criteria.md`.
+
 ### Step 1: Run the deterministic checks
 
 Execute (via the Bash tool):
@@ -63,6 +69,10 @@ What each check does (deterministic, no LLM):
 - **`docs`** — checks four key docs (`manual-qa.md`, `rollback.md`, `user-stories.md`, `changelog.md`) for stub content. Auto-generates `changelog.md` from git log (since last tag) if missing/stubbed. WARN(low) for remaining stubs.
 - **`translations`** — finds `.xcstrings`/`Localizable.strings` (iOS), or `i18n/`/`locales/`/`messages/` (web). PASS if found, WARN(low) if not.
 
+**Exit criteria:** the script exited, its JSON parsed, all five checks carry a result, and the report file it names exists on disk.
+**Evidence:** the JSON; `test -f <report_file>`.
+**Blocker:** a check reported without its `evidence` field, or the JSON re-derived by hand because the script failed. If the script cannot run, that is a failure to report — not a set of checks to perform manually and present as equivalent.
+
 ### Step 2: iOS Apple App Store review (only if `needs_apple_check: true`)
 
 If the JSON has `needs_apple_check: true` (platform = ios):
@@ -72,6 +82,18 @@ Read `<plugin-root>/skills/pre-release-check/references/ios-apple-check.md` and 
 Capture the Apple-check outcome as a 6th check result: `{"name": "apple_review", "result": "...", "severity": "...", "evidence": "..."}` and APPEND it to the report file written in Step 1.
 
 For non-iOS projects (`needs_apple_check: false`) — skip this step entirely.
+
+**Exit criteria:** on iOS, a sixth check result exists and is appended to the report file; on every other platform, the step is explicitly marked skipped rather than silently absent.
+**Evidence:** the `apple_review` entry in the report file, or `needs_apple_check: false` in the JSON.
+**Blocker:** an Apple verdict issued without the guidelines review actually running.
+
+### Step 2.5: Verify before reporting
+
+Invoke `superpowers:verification-before-completion` via the `Skill` tool. This is the step that makes the verdict trustworthy: the skill's job is to confirm that each claim about to be printed is backed by output that was actually observed in this run.
+
+**Exit criteria:** every check's result traces to evidence produced in this run — the script's JSON or the Apple review — and none rests on an assumption about what the project "normally" does.
+**Evidence:** the verification pass over the six results.
+**Blocker:** a PASS whose evidence field is empty, or a stale report file from a previous date being read as this run's output. On any mismatch, re-run Step 1 rather than reconciling by hand.
 
 ### Step 3: Render summary
 
@@ -96,6 +118,10 @@ Next step:
 ```
 
 The **one-line reason** at the bottom is the only part that genuinely benefits from the model — synthesize what's driving the overall result. Example: "FAIL because 1 task is incomplete and tests have 3 failures; address those before ship." Keep it under 25 words.
+
+**Exit criteria:** every printed line carries the result and evidence the script produced; the overall verdict is the worst of the individual results; the report file path is real and named.
+**Evidence:** the rendered block, checkable line-by-line against the JSON.
+**Blocker:** softening the overall verdict below its worst check ("mostly PASS", "FAIL but only on docs"). A blocker-severity FAIL means the release is not ready, and this skill exists to say so.
 
 ---
 

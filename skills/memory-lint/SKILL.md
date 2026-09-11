@@ -21,6 +21,11 @@ The only writes are two files in `~/.claude/` (dotfiles-synced):
 
 Call `mempalace_status`. Record total drawers, the wing→count map, the room→count map. Read the previous `~/.claude/references/mempalace-wings.md` and the newest section of `~/.claude/memory-lint.md` if they exist (baseline for drift; absent on first run — say so in the report).
 
+**Exit criteria:** live totals recorded, and the baseline either loaded or explicitly declared absent.
+**Blocker:** treating a missing baseline as "no drift" — on a first run everything is new, and the report must say so.
+
+Steps below follow the exit-criteria contract in `<plugin>/skills/_shared/references/exit-criteria.md`.
+
 ### Step 2: Five checks — all read-only
 
 1. **Wing drift vs index.** Wings present in the palace but missing from the stored index (new since last run), and index entries whose wing vanished. First run: report all wings as unindexed.
@@ -28,6 +33,10 @@ Call `mempalace_status`. Record total drawers, the wing→count map, the room→
 3. **Undocumented rooms.** Compare palace rooms against the room table in `<plugin>/skills/_shared/references/mempalace-record.md`. Report any room not in the table, with its count. Flag likely typos (edit distance 1-2 from a documented room, e.g. `decisions` vs `decision`).
 4. **Stale paths (sampled).** Pick the 5 largest wings; for each, `mempalace_search` (query: the wing's dominant topic or "architecture decision files", limit 5). Extract every absolute path (`/Volumes/`, `/Users/`, `/home/`) from the results; check each with one `test -e` batch via Bash. Report `<stale>/<checked> paths stale (sample: N records across M wings)` — **always print the sample size; silent sampling reads as full coverage.**
 5. **Index freshness.** Stored totals (drawers, wing count) vs live Step 1 numbers. Report the delta.
+
+**Exit criteria:** all five checks ran and produced a finding or an explicit "none"; the stale-path check states its sample size alongside its ratio; no MemPalace write tool was called.
+**Evidence:** the five findings; the `test -e` batch output.
+**Blocker:** a check that errored being reported as "none" — run all five and report per-check errors inline. Presenting a sampled ratio without the sample size reads as full coverage; that is the one framing this step forbids.
 
 ### Step 3: Regenerate the wing index
 
@@ -47,6 +56,10 @@ Overwrite `~/.claude/references/mempalace-wings.md`:
 
 Descriptions carry forward from the previous index; new wings get `unknown — verify`. Never invent a description for a wing you know nothing about.
 
+**Exit criteria:** the index lists every live wing with its current count, and each description is either carried forward verbatim or `unknown — verify`.
+**Evidence:** the row count vs the live wing count from Step 1.
+**Blocker:** inferring a description from a wing's name. `qsave` reconciles against this file — a guessed description propagates into future routing decisions.
+
 ### Step 4: Prepend the report
 
 Prepend a dated section to `~/.claude/memory-lint.md` (create the file on first run; never edit older sections):
@@ -62,6 +75,9 @@ Prepend a dated section to `~/.claude/memory-lint.md` (create the file on first 
 - Check 5 — index freshness: <regenerated; was N days old | first generation>
 ```
 
+**Exit criteria:** a new dated section sits at the top of `~/.claude/memory-lint.md` and every older section is byte-identical to before.
+**Blocker:** editing or compacting a previous run's section. The log's value is the trend across runs.
+
 ### Step 5: One-screen summary
 
 Render the same findings to the user, ordered by severity (split-brain and typo rooms first). End with:
@@ -69,6 +85,9 @@ Render the same findings to the user, ordered by severity (split-brain and typo 
 ```
 Next: рішення по злиттю wing-ів / чистці кімнат — за тобою; memory-lint нічого не змінює в палаці.
 ```
+
+**Exit criteria:** the summary matches the written report, ordered by severity, and states plainly that nothing in the palace was changed.
+**Blocker:** implying a fix was applied. This skill only reports; merges and purges are the user's explicit decisions.
 
 ## Failure modes
 

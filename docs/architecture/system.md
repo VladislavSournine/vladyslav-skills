@@ -59,11 +59,14 @@ Templates shared across multiple skills stay at the repo-root `templates/` (curr
 
 ## Shared references (`skills/_shared/references/`)
 
-Three cross-skill references, all with active consumers. (The three Heavy-Engineer contract references — `subagent-preamble.md`, `yaml-return.md`, `present-summary.md` — were removed in v4.6.0 after two major versions with no consumer.)
+Six cross-skill references, all with active consumers — `check_orphan_references` in `validate-skills.sh` fails the build if any loses its last one. (The three Heavy-Engineer contract references — `subagent-preamble.md`, `yaml-return.md`, `present-summary.md` — were removed in v4.6.0 after two major versions with no consumer.)
 
 | Reference | Active in | Purpose |
 |---|---|---|
+| `exit-criteria.md` (v6.0.0) | All 13 skills | The step contract: `**Exit criteria:**` (mandatory, enforced by `validate-skills.sh` check G) / `**Evidence:**` / `**Blocker:**`, plus the single Anti-gaming list binding every subagent and self-repair attempt. |
 | `mempalace-record.md` | All 7 MemPalace-using skills | Required record shape: `[WHAT] [WHY] [FILES] [DATE]` plus room-type rules and wing canonicalisation. |
+| `self-heal-shell.md` | 3 skills (`orchestrate`, `add-feature`, `fix-bug`) | Inline bootstrap offered when `CLAUDE.md` is missing, so a Step 0 check does not dead-end the run. |
+| `codegraph.md` | 3 skills (`ingest`, `add-feature`, `fix-bug`) | Optional code-index accelerator: detection and usage contract, with grep/LSP fallback. Never a hard dependency. |
 | `verify-pwd.md` | 5 skills (`orchestrate`, `add-feature`, `fix-bug`, `ingest`, `pre-release-check`) | Step 0.1 contract: `CLAUDE.md` presence check + canonical wing derivation. Skills reference this instead of inlining the 11-22-line block. |
 | `orchestration-conventions.md` | 5 dispatching skills (`orchestrate`, `add-feature`, `fix-bug`, `ingest`, `write-docs`) | Opus 4.8 dispatch contract: `Skill` vs `Agent` vs `Workflow`, model tiers (`opus`/`sonnet`/`haiku`), and what is / is not safe to parallelize. Skills point here instead of repeating it inline. |
 
@@ -82,6 +85,7 @@ Fifteen POSIX-portable bash helpers (macOS + Linux, no python/node dependency). 
 | `changelog-from-git.sh` | `pre-release-checks` | Drafts a Markdown CHANGELOG section from `git log` (human edits before commit). |
 | `check-plan-scope.sh` | `quality-gate.sh` (scope check delegate) | Verifies the diff stays within the approved plan (files, contract hash, read-only globs). |
 | `quality-gate.sh` (v4.6.0) | `add-feature` (Auto mode Step 6 + Manual Step 7), `fix-bug` (Step 5) | Per-task "done" gate: tests + diff hygiene (conflict markers, placeholders, debugger leftovers) + secret shapes + optional plan scope → JSON; exit code is the gate. Tested by `test-quality-gate.sh`. |
+| `validate-skills.sh` | `smoke-test-skills` | Repo-wide static validator, 7 checks (A-G): frontmatter, command delegation, cross-references, Architect `model=`, exit criteria per Step, orphan references, README↔MemPalace sync. Tested by `test-validate-skills.sh` (32 cases). |
 | `scripts/modules/core.sh` + `scripts/modules/*.sh` | `init-project` | Modular adaptive scaffolder. `core.sh` always writes the bare AI shell (CLAUDE.md, .claude/settings.json, .gitignore, .remember/). Optional modules (docs, backend-infra, agents, etc.) run only when selected via the interactive menu. |
 | `attach-project.sh` (v3.1.0) | `attach-project` | Auto-detect stack + skip-if-exists scaffolder for existing projects. |
 | `pre-release-checks.sh` (v3.1.0) | `pre-release-check` | Runs 5 cross-platform release checks (tasks, tests, config, docs, translations) → JSON. |

@@ -158,5 +158,85 @@ mkdir -p "$R/scripts"
 printf '# consumes script-used.md\n' > "$R/scripts/consumer.sh"
 T "reference consumed by a script passes" 0 "$R"
 
+# --- Check G: Step headings declare exit criteria ---
+R="$(make_valid)"
+cat >> "$R/skills/alpha/SKILL.md" <<'EOF'
+
+### Step 1: Do the thing
+
+Some prose.
+
+**Exit criteria:** the thing exists on disk.
+EOF
+T "Step heading with exit criteria passes" 0 "$R"
+
+R="$(make_valid)"
+cat >> "$R/skills/alpha/SKILL.md" <<'EOF'
+
+### Step 1: Do the thing
+
+Some prose with no criteria at all.
+EOF
+T "Step heading without exit criteria fails" 1 "$R"
+
+# The criteria must belong to the step, not to a later one: a heading between
+# them means Step 1 declared nothing.
+R="$(make_valid)"
+cat >> "$R/skills/alpha/SKILL.md" <<'EOF'
+
+### Step 1: Do the thing
+
+Some prose.
+
+### Step 2: Do the other thing
+
+**Exit criteria:** the other thing exists.
+EOF
+T "criteria after an intervening heading do not count for the earlier step" 1 "$R"
+
+# A bare "## Steps" section heading is not a numbered step — it must not
+# demand criteria of its own.
+R="$(make_valid)"
+cat >> "$R/skills/alpha/SKILL.md" <<'EOF'
+
+## Steps
+
+1. Run the script.
+2. Report the output.
+EOF
+T "bare Steps section heading needs no criteria" 0 "$R"
+
+# A step may own deeper sub-headings; its criteria still count at the end.
+R="$(make_valid)"
+cat >> "$R/skills/alpha/SKILL.md" <<'EOF'
+
+### Step 2: Module menu
+
+#### Group A
+
+Some options.
+
+**Exit criteria:** only the ticked modules ran.
+EOF
+T "criteria after a deeper sub-heading still count for the step" 0 "$R"
+
+# Headings inside a fenced template block are content, not section breaks.
+R="$(make_valid)"
+cat >> "$R/skills/alpha/SKILL.md" <<'EOF'
+
+### Step 3: Roadmap gate
+
+Write this file:
+
+```markdown
+# Roadmap: thing
+
+## Phase 1: first
+```
+
+**Exit criteria:** the roadmap is committed.
+EOF
+T "headings inside a code fence do not close a step" 0 "$R"
+
 printf '\n%s passed, %s failed\n' "$pass" "$failc"
 [ "$failc" -eq 0 ]

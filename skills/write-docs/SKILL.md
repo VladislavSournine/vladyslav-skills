@@ -36,7 +36,11 @@ Merged from `write-user-stories` + `write-test-docs` + `write-project-docs` in v
 
 4. **project mode only:** scan the tree for deploy configs (`Dockerfile`, `docker-compose.yml`, `.github/workflows/*.yml`, `vercel.json`, `fly.toml`, `railway.toml`) — they shape the deployment guide.
 
-**Universal rules (all modes):** read input files in FULL; existing outputs are merged, never clobbered — preserve user-edited sections; dispatch and model tiers per `_shared/references/orchestration-conventions.md`.
+**Universal rules (all modes):** read input files in FULL; existing outputs are merged, never clobbered — preserve user-edited sections; dispatch and model tiers per `_shared/references/orchestration-conventions.md`; every step follows the exit-criteria contract in `_shared/references/exit-criteria.md`.
+
+**Exit criteria:** mode chosen; every required input for that mode exists and has been read in full; on any missing input the user chose stub / produce-first / abort.
+**Evidence:** the mode, and the input paths with their line counts.
+**Blocker:** generating from a stub input as if it were real content — a test plan derived from an empty PRD documents nothing and reads as if it does.
 
 ### Mode: stories → `docs/product/user-stories.md`
 
@@ -59,6 +63,10 @@ Story format:
 
 Rules: human-readable language, no internal class names; each criterion independently verifiable by QA without reading code; **status reflects actual code state** (✅ = implementation exists AND tests cover it); sort ✅ → 🚧 → ❌; one section per feature area.
 
+**Exit criteria:** every story's status was determined by looking at code and tests, not at the PRD's intent; every ✅ names the files implementing it; pre-existing user-written stories survive verbatim.
+**Evidence:** the ✅/🚧/❌ counts, and the file paths cited per ✅ story.
+**Blocker:** a story marked ✅ on the strength of an implementation with no test covering it — that is 🚧, and the distinction is the entire value of this document.
+
 ### Mode: tests → `docs/testing/test-plan.md` + `docs/testing/manual-qa.md`
 
 The two files are independent — dispatch **two `Agent` calls in a single message** (concurrent), each `model: "sonnet"`, each owning one path. Opus main validates coverage-target semantics after both return.
@@ -66,6 +74,10 @@ The two files are independent — dispatch **two `Agent` calls in a single messa
 **test-plan.md structure:** coverage-targets table (Unit 70% / Integration core flows / E2E smoke; runner per stack — `pytest`, `go test ./...`, `xcodebuild test`), test categories derived from user stories (every ✅ story gets a Unit or Integration entry; every 🚧 story gets a `[ ]` task), stack notes (runner command, CI hook, fixtures path).
 
 **manual-qa.md structure:** pre-flight block (build installed, data seeded, logs visible), per-feature-area happy path + edge cases (`[action] → [expected observable result]`), cross-cutting checks adapted to stack — iOS: Dark Mode, Dynamic Type, VoiceOver; web: zoom 200%, screen reader; backend-only: skip cross-cutting.
+
+**Exit criteria:** every ✅ story has a Unit or Integration entry and every 🚧 story has an unchecked task; every manual-QA step names an observable result a tester can see without reading code; the runner command matches the project's actual stack.
+**Evidence:** story-to-test-entry coverage count; the runner command, taken from the project rather than from the stack's convention.
+**Blocker:** a QA step whose expected result is "works correctly" — unobservable, and therefore untestable by the person this file is written for.
 
 ### Mode: project → `README.md` + `docs/onboarding.md` + `docs/deployment.md`
 
@@ -77,6 +89,10 @@ Three independent docs — dispatch **three `Agent` calls in a single message**,
 
 **No-AI-mention gate (Opus main, never delegated):** after the three return, grep the outputs for `Claude` / `CLAUDE.md` / `.claude/` / "AI" and fix any leak. These documents are for humans.
 
+**Exit criteria:** the three files exist; the grep returns nothing; the deploy steps derive from configs actually found in Step 0.4, or the file says plainly that none were found.
+**Evidence:** `grep -riE 'claude|\.claude/|\bAI\b' README.md docs/onboarding.md docs/deployment.md` — empty.
+**Blocker:** invented deploy steps for infrastructure this project does not have. A deployment guide describing a pipeline that does not exist is worse than a stub saying none was found.
+
 ### Summary
 
 ```
@@ -86,6 +102,9 @@ Three independent docs — dispatch **three `Agent` calls in a single message**,
   <mode-specific line: story counts ✅/🚧/❌ · coverage targets set/stub · deploy configs detected>
   Next: /vladyslav:pre-release-check  — verify the release before deployment
 ```
+
+**Exit criteria:** every file listed is on disk with the created/updated label matching what actually happened.
+**Blocker:** listing a file as updated when the merge preserved it unchanged — say unchanged.
 
 ## Why this is a Light Engineer skill
 
