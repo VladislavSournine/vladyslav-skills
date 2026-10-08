@@ -54,7 +54,7 @@ Execute these checks sequentially. If all pass → commit. If any fails → STOP
 1. **Deterministic gate.** Tests, diff hygiene, secrets, and plan scope already ran via `quality-gate.sh` in Step 6. If anything changed since that run (review fixes, new files), re-run the same command. **Blocker if it exits non-zero.**
 
 2. **Code review.** Dispatch a review agent via the Agent tool:
-   - `subagent_type: "pr-review-toolkit:code-reviewer"`, `model: "sonnet"` (preferred), or `subagent_type: "feature-dev:code-reviewer"`, `model: "sonnet"` as fallback
+   - `subagent_type: "pr-review-toolkit:code-reviewer"`, `model: "opus"` (preferred), or `subagent_type: "feature-dev:code-reviewer"`, `model: "opus"` as fallback
    - Prompt: "Review the staged diff (`git diff --cached`) for bugs, logic errors, security issues, and project-convention violations. Report only HIGH-confidence issues. Flag silent failures and inadequate error handling specifically."
    - **Blocker if the agent reports any HIGH-severity issue.**
 
@@ -62,7 +62,7 @@ Execute these checks sequentially. If all pass → commit. If any fails → STOP
 
 4. **Security.** Invoke the security checker:
    - Preferred: Skill tool → `owasp-security` (scoped to the staged diff)
-   - Fallback: Agent tool → `subagent_type: "pr-review-toolkit:silent-failure-hunter"`, `model: "sonnet"`
+   - Fallback: Agent tool → `subagent_type: "pr-review-toolkit:silent-failure-hunter"`, `model: "opus"`
    - **Blocker if: injection risks, secrets in diff, authZ gaps on mutations, silent catch blocks without logging.**
 
 **If all checks pass:** proceed to commit. The pre-commit hook (`~/.claude/hooks/pre-commit-review.sh`) will still fire as an additional safety net — that's expected, not redundant. Compose a concise commit message referencing the contract piece, stage only the files from the plan (not `git add -A`), commit.
@@ -101,7 +101,7 @@ Repair means fixing the cause. If the agent concludes the test itself is wrong, 
 
 ## Step 7 (Auto): Final code review
 
-The per-commit auto-gate (Step 6.5) already runs the code review agent on each commit, so a final code review pass is usually redundant. Exception: run one **whole-branch review** at the end via Agent tool `subagent_type: "pr-review-toolkit:code-reviewer"`, `model: "sonnet"` with prompt "Review the entire branch diff (`git diff main...HEAD`) for cross-commit issues — inconsistencies, partial refactors, dead code left between commits."
+The per-commit auto-gate (Step 6.5) already runs the code review agent on each commit, so a final code review pass is usually redundant. Exception: run one **whole-branch review** at the end via Agent tool `subagent_type: "pr-review-toolkit:code-reviewer"`, `model: "opus"` with prompt "Review the entire branch diff (`git diff main...HEAD`) for cross-commit issues — inconsistencies, partial refactors, dead code left between commits."
 
 If the whole-branch review surfaces issues: dispatch another subagent to fix them (same file-scope constraint as Step 6), re-run auto-gate, then proceed. No user approval needed unless a guard rail triggers.
 

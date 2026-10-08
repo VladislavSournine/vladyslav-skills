@@ -44,7 +44,7 @@ Merged from `write-user-stories` + `write-test-docs` + `write-project-docs` in v
 
 ### Mode: stories → `docs/product/user-stories.md`
 
-Runs inline in Opus main (one file — dispatch overhead isn't worth it). Scan the codebase (route handlers, screens, tests, UI wiring) to determine what is **actually implemented** vs described in the PRD.
+Two stages. First dispatch a **haiku scout** (`_shared/references/orchestration-conventions.md` → Haiku scout) to inventory the codebase: route handlers, screens, tests, UI wiring, each as `file:line` + one-line purpose. Then, inline in Opus main, compare that inventory against the PRD to determine what is **actually implemented** vs described — open specific files only where the inventory is ambiguous. The code-vs-intent judgment never leaves Opus main.
 
 Story format:
 
@@ -109,6 +109,6 @@ Three independent docs — dispatch **three `Agent` calls in a single message**,
 ## Why this is a Light Engineer skill
 
 - Generation is semantic work (code reality → product language) — stays in-model; but each mode is one predictable write-pass, so no Heavy Engineer contract tax.
-- Independent files fan out to parallel `sonnet` subagents (tests: 2, project: 3); single-file stories mode runs inline.
+- Independent files fan out to parallel `sonnet` subagents (tests: 2, project: 3); stories mode sends a `haiku` scout for the codebase inventory, then writes inline.
 - Judgment steps — coverage-target semantics, preservation, the no-AI-mention gate — never leave the Opus main session.
 - Fixed output paths per mode; no allowlist enforcement needed.

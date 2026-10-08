@@ -161,7 +161,7 @@ Rules that apply to every execution mode:
 - **Tests and code together** — both derived from the contract. No "code first, tests after".
 - **Blast Radius Rule** — smallest justified change, no "while I'm here" refactors, ask before expanding scope.
 
-**After each chunk/phase — not only at the end** — dispatch a focused review via the `Agent` tool: `subagent_type: "pr-review-toolkit:code-reviewer"`, `model: "sonnet"`, scoped to what that chunk changed. Fix its findings inside the same chunk. In Manual mode, stop for the user after each chunk's review is clean.
+**After each chunk/phase — not only at the end** — dispatch a focused review via the `Agent` tool: `subagent_type: "pr-review-toolkit:code-reviewer"`, `model: "opus"`, scoped to what that chunk changed. Fix its findings inside the same chunk. In Manual mode, stop for the user after each chunk's review is clean.
 
 **Exit criteria:** every plan task is implemented with its tests; each chunk was reviewed and its HIGH findings resolved before the next chunk started; the files touched match the Step 5 lists.
 **Evidence:** `git diff --stat` against the branch point; the per-chunk review dispositions; a green test run.
