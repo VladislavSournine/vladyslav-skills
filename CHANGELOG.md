@@ -1,5 +1,18 @@
 # Changelog
 
+## v6.1.0
+
+### Added
+- **Haiku scout** (`orchestration-conventions.md`) — read-heavy locating work (codebase inventory, symptom search) dispatches an `Explore` subagent on `haiku` that returns only `file:line — purpose`; it locates, never judges. Used by `write-docs` stories mode (codebase inventory before the code-vs-intent comparison) and `fix-bug` Step 4 (search fallback when CodeGraph is absent).
+
+### Changed
+- **Code review and security dispatches run on `opus`** — `code-reviewer` and the `silent-failure-hunter` fallback in `add-feature` / `fix-bug` moved from `sonnet` to `opus`, matching the conventions tier table; the model rule in `CLAUDE.md` updated to match. Fix agents in the self-repair loop stay on `sonnet`.
+
+### Fixed
+- **`pre-release-checks.sh` tests check** — added `--test-cmd` / `--test-timeout` (same override as `quality-gate.sh`). An Xcode project in a subdirectory no longer triggers a bare `xcodebuild test` from the repo root (always exit 66, reported as a blocker FAIL); it now WARNs asking for `--test-cmd`.
+- **`grep-replace-me.sh` false positives** — no longer scans Markdown (stub docs are check 4's job; plans and past pre-release reports quote the tokens), skips `venv/`, `site-packages/`, `.remember/`, `Pods/`, `.build/`, and matches `TBD` as a whole word only (was hitting `TBDATA` in vendored code).
+- New `scripts/test-pre-release-checks.sh` harness (9 cases).
+
 ## v6.0.0
 
 **BREAKING:** every skill's step contract changed shape. Skills now declare what each step must *leave behind* (exit criteria + evidence + blockers) rather than narrating how to perform it. A skill file edited against the old shape will fail `validate-skills.sh`.

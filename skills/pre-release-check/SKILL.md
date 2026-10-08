@@ -39,10 +39,13 @@ Execute (via the Bash tool):
 ```bash
 <plugin-root>/scripts/pre-release-checks.sh \
     --pwd <project pwd> \
-    --plugin-root <plugin-root>
+    --plugin-root <plugin-root> \
+    [--test-cmd "<cmd>"] [--test-timeout <seconds>]
 ```
 
-This runs in ~0.5 seconds. It writes `docs/release/pre-release-report-<YYYY-MM-DD>.md` AND emits JSON to stdout:
+Pass `--test-cmd` whenever the project's `CLAUDE.md` documents its test commands, and always for monorepos or an Xcode project outside the repo root — auto-detection only finds a runner at the root, and bare `xcodebuild test` has no scheme or destination. Chain several suites with `&&` (e.g. `cd backend && pytest -q && cd ../App && xcodebuild test -project … -scheme … -destination …`). Raise `--test-timeout` (default 300 s) for full iOS builds.
+
+Apart from the test run, this takes ~0.5 seconds. It writes `docs/release/pre-release-report-<YYYY-MM-DD>.md` AND emits JSON to stdout:
 
 ```json
 {

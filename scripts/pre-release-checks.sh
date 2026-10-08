@@ -19,7 +19,12 @@
 # Usage:
 #   pre-release-checks.sh \
 #       --pwd <project-dir> \
-#       --plugin-root <plugin-root>
+#       --plugin-root <plugin-root> \
+#       [--test-cmd "<cmd>"] [--test-timeout <seconds>]
+#
+# --test-cmd overrides runner auto-detection (same flag as quality-gate.sh). Use it
+# for monorepos and for Xcode projects, which need -project/-scheme/-destination.
+# --test-timeout defaults to 300 s (only enforced when timeout/gtimeout exists).
 #
 # Output: JSON to stdout describing each check's result and the overall outcome.
 # Side-effect: writes docs/release/pre-release-report-<YYYY-MM-DD>.md
@@ -29,11 +34,15 @@ set -u
 
 PROJECT_PWD=""
 PLUGIN_ROOT=""
+TEST_CMD=""
+TEST_TIMEOUT=300
 
 while [ $# -gt 0 ]; do
     case "$1" in
         --pwd) PROJECT_PWD="$2"; shift 2 ;;
         --plugin-root) PLUGIN_ROOT="$2"; shift 2 ;;
+        --test-cmd) TEST_CMD="$2"; shift 2 ;;
+        --test-timeout) TEST_TIMEOUT="$2"; shift 2 ;;
         *) echo "unknown arg: $1" >&2; exit 2 ;;
     esac
 done
@@ -158,7 +167,9 @@ detect_test_command() {
     if [ -f pubspec.yaml ]; then
         echo "flutter test"; return
     fi
-    if find . -maxdepth 2 -name '*.xcodeproj' -print -quit 2>/dev/null | grep -q .; then
+    # Bare `xcodebuild test` only works from the project's own directory; a project
+    # in a subdirectory is reported by check_tests as "pass --test-cmd" instead.
+    if find . -maxdepth 1 -name '*.xcodeproj' -print -quit 2>/dev/null | grep -q .; then
         echo "xcodebuild test"; return
     fi
     if [ -f Package.swift ]; then
@@ -174,9 +185,13 @@ detect_test_command() {
 
 check_tests() {
     local cmd
-    cmd="$(detect_test_command)"
+    cmd="${TEST_CMD:-$(detect_test_command)}"
     if [ -z "$cmd" ]; then
-        if [ "$PLATFORM" = "plugin" ]; then
+        local xcproj
+        xcproj="$(find . -maxdepth 2 -name '*.xcodeproj' -print -quit 2>/dev/null)"
+        if [ -n "$xcproj" ]; then
+            set_check "tests" "WARN" "medium" "Xcode project at ${xcproj#./} — pass --test-cmd with -project/-scheme/-destination"
+        elif [ "$PLATFORM" = "plugin" ]; then
             set_check "tests" "WARN" "low" "plugin type — no traditional test runner; manual verification only"
         else
             set_check "tests" "WARN" "medium" "no test runner detected"
@@ -187,9 +202,9 @@ check_tests() {
     # Run with a generous timeout. Use gtimeout if available (macOS via coreutils).
     local timeout_cmd=""
     if command -v gtimeout >/dev/null 2>&1; then
-        timeout_cmd="gtimeout 300"
+        timeout_cmd="gtimeout $TEST_TIMEOUT"
     elif command -v timeout >/dev/null 2>&1; then
-        timeout_cmd="timeout 300"
+        timeout_cmd="timeout $TEST_TIMEOUT"
     fi
 
     local output rc tmp
@@ -207,7 +222,7 @@ check_tests() {
     if [ "$rc" -eq 0 ]; then
         set_check "tests" "PASS" "low" "${cmd} → exit 0"
     elif [ "$rc" -eq 124 ]; then
-        set_check "tests" "FAIL" "blocker" "${cmd} → timed out after 300s"
+        set_check "tests" "FAIL" "blocker" "${cmd} → timed out after ${TEST_TIMEOUT}s"
     else
         # Truncate output to keep JSON readable
         local snippet
