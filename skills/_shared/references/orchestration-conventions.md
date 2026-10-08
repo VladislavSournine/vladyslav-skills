@@ -1,4 +1,4 @@
-# Orchestration conventions (Opus 4.8+)
+# Orchestration conventions (Opus 5.5+)
 
 How skills dispatch work: which mechanism, which model, what is safe to run in parallel.
 
@@ -30,6 +30,18 @@ Quality is the priority. Drop a tier only when the work is genuinely mechanical 
 | **`haiku`** | Mechanical, deterministic, no judgment. | parallel file reads, MemPalace searches, "does this file exist" checks, grep-style scans |
 
 When you fan out to `sonnet`/`haiku`, the Opus main session stays the control plane: it validates inputs, owns approval gates, and synthesizes the final result.
+
+### Haiku scout
+
+For read-heavy locating work (codebase inventory, symptom search) that would otherwise fill the Opus context with file dumps:
+
+```
+Agent(subagent_type: "Explore", model: "haiku", prompt: "<what to find>. Return ONLY a list: `file:line — one-line purpose`. No file contents, no conclusions.")
+```
+
+- The scout **locates; it never judges.** Root causes, code-vs-intent verdicts, and review findings stay on `opus`.
+- Compact output keeps the Opus context small and the scout's prompts under Haiku 5.5's 100K-token price threshold.
+- Skip the scout when the lookup is a handful of known files or MemPalace queries — dispatch overhead exceeds the saving.
 
 ## What is safe to parallelize
 

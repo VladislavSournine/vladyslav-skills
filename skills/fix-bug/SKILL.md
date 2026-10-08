@@ -48,7 +48,7 @@ Invoke `superpowers:using-git-worktrees` via the `Skill` tool. Branch: `fix/<sho
 
 Invoke `superpowers:systematic-debugging` via the `Skill` tool and follow it.
 
-> **Optional CodeGraph:** for root-cause localisation and blast radius, use CodeGraph per `<plugin>/skills/_shared/references/codegraph.md` if available (`explore`, `callers`, `impact`). Falls back to grep/LSP when absent.
+> **Optional CodeGraph:** for root-cause localisation and blast radius, use CodeGraph per `<plugin>/skills/_shared/references/codegraph.md` if available (`explore`, `callers`, `impact`). When absent, dispatch the search as a **haiku scout** (`_shared/references/orchestration-conventions.md` → Haiku scout): candidate `file:line` sites for the symptom plus their callers. The scout only locates — naming the root cause stays in the Opus main session.
 
 **Exit criteria:** a named root cause at a specific location, plus the causal chain from it to the observed symptom.
 **Evidence:** the file:line of the cause, and one concrete observation (log line, failing assertion, traced value) that would not be explained by any competing hypothesis.
@@ -94,7 +94,7 @@ Invoke `superpowers:requesting-code-review` via the `Skill` tool. If feedback ar
 A bug fix touches the same attack surface a feature does; skipping this is how a regression fix ships a vulnerability.
 
 - Preferred: `Skill` tool → `owasp-security`, scoped to the fix diff (`git diff` against the branch point).
-- Fallback: `Agent` tool → `subagent_type: "pr-review-toolkit:silent-failure-hunter"`, `model: "sonnet"`.
+- Fallback: `Agent` tool → `subagent_type: "pr-review-toolkit:silent-failure-hunter"`, `model: "opus"`.
 
 **Exit criteria:** the checker has run against the complete fix diff and reported no blocker-class finding.
 **Evidence:** the checker's output, plus the diff range it was given.
